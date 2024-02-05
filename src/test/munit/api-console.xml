@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit 
+		http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  
+		http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+		http://www.mulesoft.org/schema/mule/http 
+		http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+		http://www.mulesoft.org/schema/mule/validation 
+		http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+
+	<munit:config name="api-console.xml" />
+
+	<munit:test name="test-console">
+		<munit:enable-flow-sources>
+			<munit:enable-flow-source value="api-console" />
+		</munit:enable-flow-sources>
+
+		<munit:execution>
+			<logger doc:name="test console" 
+                level="INFO" 
+                message="Test console" />
+                
+			<http:request
+				method="GET"
+				doc:name="Console"
+				path="/console"
+				config-ref="HTTP_Request_Configuration">
+				<http:headers><![CDATA[#[output application/java
+					---
+					{
+						"Content-Type" : "text/html"
+					}]]]>
+				</http:headers>
+			</http:request>
+			<ee:transform doc:name="Transform Message">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0 output text --- payload as String]]>
+					</ee:set-payload>
+				</ee:message>
+			</ee:transform>
+
+			<logger doc:name="result"
+                level="INFO"      
+                message='#[%dw 2.0 output application/json --- {  message: "Result", payload: payload}]' />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that
+				doc:name="Assert that"
+				is="#[MunitTools::notNullValue()]"
+				expression='#[payload contains "APIkit Console"]'
+				message="The APIKit is not correctly configured" />
+		</munit:validation>
+	</munit:test>
+
+</mule>

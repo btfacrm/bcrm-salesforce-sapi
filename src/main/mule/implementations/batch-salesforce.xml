@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core 
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/batch 
+		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+		
+	<flow name="job-batch" >
+		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
+		<set-payload doc:name="serialize" value="#[output application/java --- payload]"/>
+		<try doc:name="try">
+			<batch:job jobName="postBatch_Job"  blockSize="1">
+				<batch:process-records >
+					<batch:step name="Batch_Step" >
+						<batch:aggregator doc:name="batch aggregator" size="5">
+							<choice doc:name="Choice" >
+								<when expression='#[vars.bulkOperation == "insert"]'>
+									<salesforce:create doc:name="create" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig" />
+								</when>
+								<otherwise>
+									<salesforce:update type="#[vars.salesforceObject]" doc:name="Update" config-ref="GlobalSalesforceConfig"/>
+								</otherwise>
+							</choice>
+							<logger doc:name="salesforce result" level="INFO" category="app" message="#[payload]"/> 					
+						</batch:aggregator>
+					</batch:step>
+				</batch:process-records>
+				<batch:on-complete>
+					<logger doc:name="batch result" level="INFO" category="app" message="#[payload]"/> 					
+				</batch:on-complete>
+			</batch:job>
+		</try>
+		<set-variable doc:name="status 200" variableName="httpStatus" value="#[201]" />
+		<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}" />
+		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number) - vars.batchStart]"/>
+
+		<flow-ref doc:name="build batch result" name="batch-result"/>
+		<error-handler ref="global-error-handler" />
+	</flow>
+
+	
+	<flow name="job-bulk" >
+		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
+
+		<ee:transform doc:name="build bulk csv" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/csv quoteValues=true,header=true,separator=","
+                ---
+				payload
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>		
+
+		<salesforce:create-job-bulk-api-v2 doc:name="job" 
+			config-ref="GlobalSalesforceConfig" 
+			objectType="#[vars.salesforceObject]" 
+			operation="#[vars.bulkOperation]" 
+			externalIdFieldName="Id"/>
+		<set-variable doc:name="save jobId" variableName="jobId" value="#[payload.id]"/>
+
+		<until-successful doc:name="until sucess" maxRetries="60" millisBetweenRetries="1000">
+			<salesforce:get-job-state-bulk-api-v2 doc:name="job state"  config-ref="GlobalSalesforceConfig" id="#[vars.jobId]"/>
+			<choice doc:name="choice"  >
+				<when expression='#[payload.state == "JobComplete"]'>
+					<set-variable doc:name="status 200" variableName="httpStatus" value="#[200]"/>
+					<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}"/>
+				</when>
+				<when expression='#[payload.state == "Failed"]'>
+					<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
+					<set-variable doc:name="message error" variableName="message" value="${messages.batch-error}"/>
+				</when>
+				<otherwise >
+					<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
+					<set-variable doc:name="message still running" variableName="message" value="${messages.batch-stillrunning}"/>
+					<logger doc:name="bulk result" level="DEBUG" category="app"  message="#[output application/json --- 'Job status: ' ++ payload.state]" />
+					<raise-error doc:name="Raise error" type="MULE:CONNECTIVITY" description="The batch job still processing in Salesforce"/>
+				</otherwise>
+			</choice>
+		</until-successful>
+
+		<logger doc:name="bulk result" level="DEBUG" category="app" message="#[output application/json --- payload]"/>
+		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number) - vars.batchStart]"/>
+		<flow-ref doc:name="build batch result" name="batch-result"/>
+		<error-handler ref="global-error-handler" />	
+	</flow>
+
+	<sub-flow name="initialize-batch">
+		<logger level="INFO" category="app" message="#['Records: ' ++ (sizeOf(payload) as String default '') ]" /> 
+        <set-variable doc:name="start service" variableName="start" value="#[now() as Number]" />
+        <set-variable doc:name="save payload" variableName="originalPayload" value="#[payload]"  />
+        <set-variable doc:name="initialize batch list" variableName="batchList" value="#[[]]"  />
+	</sub-flow>
+
+	<sub-flow name="batch-result">
+		<ee:transform doc:name="add result to batchList" >
+			<ee:variables >
+				<ee:set-variable variableName="batchList"><![CDATA[%dw 2.0
+                output application/json
+                ---
+				vars.batchList ++
+				[{
+					id: payload.id,
+					state: payload.state,
+					object: payload.object,
+					operation: payload.operation,
+					recordsFailed: payload.numberRecordsFailed,
+					recordsProcessed: payload.numberRecordsProcessed,
+					salesforceProcessingTime: payload.totalProcessingTime,
+					batchProcessingSeconds: vars.internalBatchDuration
+				}]
+                ]]>
+				</ee:set-variable>	
+			</ee:variables>
+        </ee:transform>		
+	</sub-flow>
+
+	<sub-flow name="service-response">
+		<set-variable doc:name="batch-time-process" variableName="serviceProcessingTime" value="#[(now() as Number) - vars.start]"  />
+
+		<ee:transform doc:name="add result to batchList" >
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+					output application/json
+					---
+					{
+						message: vars.message,
+						receivedRecords: sizeOf(vars.originalPayload),
+						serviceProcessingTime: vars.serviceProcessingTime,
+						correlationId: correlationId,
+						batchList: vars.batchList
+					}
+					]]>
+				</ee:set-payload>
+			</ee:message>
+        </ee:transform>		
+	</sub-flow>
+
+	<sub-flow name="response">
+		<set-variable doc:name="batch-time-process" variableName="serviceProcessingTime" value="#[(now() as Number) - vars.start]"  />
+
+		<ee:transform doc:name="service response" >
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+					output application/json
+					---
+					{
+						message: vars.message,
+						receivedRecords: vars.receivedRecords,
+						jobId: if ( isEmpty(payload.id) ) "" else payload.id,
+						jobState: if ( isEmpty(payload.state) ) "" else payload.state,
+						getAccountDuration: if ( isEmpty(vars.getAccountDuration) ) 0 else vars.getAccountDuration,
+						internalBatchDuration: if ( isEmpty(vars.internalBatchDuration) ) 0 else vars.internalBatchDuration,
+						salesforceProcessingMillisecs: if ( isEmpty(payload.totalProcessingTime) ) 0 else payload.totalProcessingTime,
+						salesforceRecordsReceived: if ( isEmpty(payload.numberRecordsProcessed) ) 0 else payload.numberRecordsProcessed,
+						salesforceRecordsFailed: if ( isEmpty(payload.numberRecordsFailed) ) 0 else payload.numberRecordsFailed,
+						serviceProcessingTime: vars.serviceProcessingTime,
+						correlationId: correlationId
+					}
+					]]>
+				</ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

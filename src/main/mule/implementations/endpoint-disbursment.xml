@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation=" 
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core 
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/batch 
+		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+
+    <flow name="endpoint-disbursment"> 
+        <flow-ref doc:name="initialize batch" name="initialize-batch"/>
+
+        <flow-ref doc:name="Get Account Ids" name="get-accountsid"/>
+
+        <ee:transform doc:name="build Salesforce payload for transactions" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/json
+                ---
+                vars.originalPayload map (item, index) -> {
+                    'Trust_Account__c' : (vars.listIds filter ( $.account == item.account )).id[0],
+                    'Transaction_Number__c': item.transactionNumber,
+                    'Name': item.code,
+                    'Amount__c': item.amount
+                }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account_Disbursement__c" />
+        <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
+
+        <flow-ref doc:name="run job" name="job-bulk"/>
+        <flow-ref doc:name="service response" name="service-response"/>
+        <error-handler ref="global-error-handler" />		
+    </flow>
+</mule>

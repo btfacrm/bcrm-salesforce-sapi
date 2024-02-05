@@ -1,0 +1,21 @@
+name: Build
+ 
+on:
+  push:
+    branches: [ "main" ]
+  pull_request: 
+
+jobs: 
+  Mulesoft:
+    uses: CoveredCA/common-devops/.github/workflows/mule-build.yml@main
+    with:
+      keyvault-key: CoveredCA-KV-Mulesoft
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # Needed by the Unit Test Action
+    permissions:
+      contents: write
+      issues: write
+      checks: write
+      pull-requests: write

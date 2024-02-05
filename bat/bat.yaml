@@ -1,0 +1,11 @@
+suite:
+  name: "api-test"
+files:
+  - file: test/api.dwl
+reporters:
+    - type: HTML
+      outFile: target/HTML.html
+    - type: JSON
+      outFile: target/JSON.json
+    - type: JUnit
+      outFile: target/JUnit.xml

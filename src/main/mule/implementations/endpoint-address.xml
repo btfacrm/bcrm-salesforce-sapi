@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation=" 
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core 
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/batch 
+		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+
+    <flow name="endpoint-address">     
+        <flow-ref doc:name="initialize batch" name="initialize-batch"/>
+
+        <!-- ********************************************
+             UPDATE ACCOUNT RECORDS IN SALESFORCE
+             ******************************************** -->
+
+        <flow-ref doc:name="get account ids" name="get-contactid"/>
+        
+        <ee:transform doc:name="build Salesforce payload for Account" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/json
+                ---
+                vars.originalPayload map (address) -> {
+                    'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
+                    'PersonMailingStreet': address.address1,
+                    'PersonMailingCity': address.city,
+                    'PersonMailingStateCode': address.state,
+                    'PersonMailingPostalCode': address.zipCode
+                }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
+        <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+
+        <!-- 
+        <flow-ref doc:name="run job" name="job-batch"/>
+        -->
+        <flow-ref doc:name="run job" name="job-bulk"/>
+        <flow-ref doc:name="service response" name="service-response"/>
+        <error-handler ref="global-error-handler" />		
+    </flow>
+</mule>

@@ -1,0 +1,24 @@
+name: Deployment
+ 
+on:
+  issues:
+    types: [opened]
+
+jobs: 
+  Deployment:
+    uses: CoveredCA/common-devops/.github/workflows/mule-deployment.yml@main
+    if: |
+      contains(toJson(github.event.issue.labels), 'dev') ||
+      contains(toJson(github.event.issue.labels), 'tst') ||
+      contains(toJson(github.event.issue.labels), 'prd')
+    with:
+      keyvault-key: CoveredCA-KV-Mulesoft
+    secrets:
+      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Needed by the Unit Test Action
+    permissions:
+      contents: write
+      issues: write
+      checks: write
+      pull-requests: write

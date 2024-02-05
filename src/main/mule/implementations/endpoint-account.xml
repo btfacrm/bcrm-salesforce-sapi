@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation=" 
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core 
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/batch 
+		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+
+    <flow name="endpoint-account">    
+        <flow-ref doc:name="initialize batch" name="initialize-batch"/>
+
+        <!-- *******************************************************
+             CREATE ACCOUNT RECORDS IN SALESFORCE
+             ******************************************************* -->
+
+        <ee:transform doc:name="build Salesforce payload for Accounts" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/json
+                ---
+                vars.originalPayload map (item, index) -> {
+                    'FirstName' : item.firstName,
+                    'LastName': item.lastName,
+                    'SSOT_Name__pc': item.name,
+                    'Mothers_Maiden_Name__pc': item.motherMaidenName,
+                    'SSN__pc': item.ssn,
+                    'SSOT_Contact_ID__pc': item.contactId,
+                    'RecordTypeId': '012OC0000004e2NYAQ',
+                    'Agency_Code__pc': item.agencyCode,
+                    'Agency__pc': item.agencyDescription,
+                    'Region_Code__pc': item.regionCode,
+                    'Region__pc': item.regionDescription,
+                    'Tribe_Code__pc': item.tribeCode,
+                    'Tribe__pc':  item.tribeDescription,
+                    'Tier_Level_Code__pc': item.tierLevelCode,
+                    'Tier_Level__pc': item.tierLevelDescription,
+                    'Freeze_Code__pc': item.freezeCode,
+                    'Freeze__pc': item.freezeDescription,
+                    'Type_Code__pc': item.typeCode,
+                    'Type__pc': item.typeDescription,
+                    'Category_Code__pc': item.categoryCode,
+                    'Category__pc': item.categoryDescription,
+                    'Phone': '123'                                  
+                }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>			
+        
+        <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Account" />
+        <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/>
+
+        <flow-ref doc:name="run job" name="job-bulk"/>
+
+        <!-- ********************************************
+             CREATE TRUST ACCOUNT RECORDS IN SALESFORCE
+             ******************************************** -->
+        <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>	
+
+        <flow-ref doc:name="get contact ids" name="get-contactid"/>
+        <ee:transform doc:name="build Salesforce payload for trust account" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/json
+                ---
+                vars.originalPayload map (item, index) -> {
+                    'IIM_Account_Number__c' : item.account,
+                    'Balance__c': 0,
+                    'Beneficiary__c': (vars.listIds filter ( $.contactId == item.contactId )).id[0]
+                }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
+        <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
+
+        <flow-ref doc:name="run job" name="job-bulk"/>
+        <flow-ref doc:name="service response" name="service-response"/>
+        <error-handler ref="global-error-handler" />
+    </flow>
+</mule>

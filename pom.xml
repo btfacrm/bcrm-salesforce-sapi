@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
+		<artifactId>common-pom</artifactId>
+		<version>1.0.8</version>
+		<relativePath/>
+	</parent> 
+
+	<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
+	<artifactId>bcrm-salesforce-sapi-asset</artifactId>
+	<version>1.0.0</version> 
+	<packaging>mule-application</packaging>
+
+	<name>bcrm-salesforce-sapi</name>
+	<description>BCRM Salesforce System API</description>
+
+	<properties>
+		<!-- Exchange documentation. Details on https://docs.mulesoft.com/exchange/to-publish-assets-maven#publish-an-asset-with-mutable-data -->
+		<categories key="API layer">System</categories>
+		<categories key="Backend">Salesforce</categories>
+		<categories key="Asset type">API</categories>
+		<tags>Salesforce, sapi, System, Contact, template</tags>
+		<fields key="sourceCode">https://github.com/btfacrm/bcrm-salesforce-sapi</fields>
+
+		<!-- RAML specification -->
+		<restconnector.api.spec.group>${project.groupId}</restconnector.api.spec.group>
+		<restconnector.api.spec.artifact>bcrm-salesforce-sapi</restconnector.api.spec.artifact>
+		<restconnector.api.spec.version>1.0.8</restconnector.api.spec.version>
+
+	</properties>
+
+	<dependencies>
+		<!-- RAML specification --> 
+		<dependency>
+			<groupId>${restconnector.api.spec.group}</groupId>
+			<artifactId>${restconnector.api.spec.artifact}</artifactId>
+			<version>${restconnector.api.spec.version}</version>
+			<classifier>raml</classifier>
+			<type>zip</type> 
+		</dependency>
+
+		<!-- Common Assets -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>common-btfacore</artifactId>
+			<version>1.0.10</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+
+		<!-- Salesforce connector -->
+		<dependency>
+			<groupId>com.mulesoft.connectors</groupId>
+			<artifactId>mule-salesforce-connector</artifactId>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+	</dependencies>
+
+	<!--Repository to get the artifacts for your Anypoint organization -->
+	<repositories>
+		<repository>
+			<id>anypoint-exchange-v3</id>
+			<name>Anypoint Exchange V3</name>
+			<url>https://maven.gov.anypoint.mulesoft.com/api/v2/organizations/${project.groupId}/maven</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+</project>

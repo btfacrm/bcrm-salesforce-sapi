@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:opentelemetry="http://www.mulesoft.org/schema/mule/opentelemetry"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/opentelemetry 
+		http://www.mulesoft.org/schema/mule/opentelemetry/current/mule-opentelemetry.xsd">
+	
+	<flow name="soql-query" >
+		<salesforce:query doc:name="query" config-ref="GlobalSalesforceConfig">
+			<salesforce:salesforce-query ><![CDATA[ #[vars.queryStatement] ]]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java --- { queryFilter : vars.queryFilter}]]]></salesforce:parameters>
+		</salesforce:query>
+ 
+		<!--<logger doc:name="salesforce result" level="DEBUG" category="app" message="#[payload]"/>-->
+
+		<ee:dynamic-evaluate doc:name="evaluate" expression="#[vars.buildResponse]" target="listIds"/>
+		<logger doc:name="result" level="DEBUG" category="app" message="#['listIds size: ' ++ (sizeOf(vars.listIds) as String default '') ]" /> 
+		<error-handler ref="global-error-handler" />
+	</flow>
+
+	<flow name="get-accountsid">
+
+		<logger doc:name="get ids" level="INFO" category="app" message="#['Query get-accounts-id']" />
+		<ee:transform doc:name="create filter" >
+			<ee:variables >
+				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
+				output application/java
+				---
+					"'" ++ joinBy(payload.account, "','") ++ "'"
+				]]>
+				</ee:set-variable>	
+			</ee:variables>
+		</ee:transform>
+
+		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
+		<set-variable variableName="queryStatement" value="${file::script-account-query.dwl}" doc:name="query statement" />
+		<set-variable variableName="buildResponse" value="${file::script-account-response.dwl}" doc:name="build response" />
+
+		<flow-ref doc:name="query" name="soql-query"/>
+	</flow>
+
+	<flow name="get-contactid">
+		<logger doc:name="get ids" level="INFO" category="app" message="#['Query get-contactid']" />
+		<ee:transform doc:name="create filter" >
+			<ee:variables >
+				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
+				output application/java
+				---
+					"'" ++ joinBy(payload.contactId, "','") ++ "'"
+				]]>
+				</ee:set-variable>	
+			</ee:variables>
+		</ee:transform>
+
+		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
+		<set-variable variableName="queryStatement" value="${file::script-contactid-query.dwl}" doc:name="query statement" />
+		<set-variable variableName="buildResponse" value="${file::script-contactid-response.dwl}" doc:name="build response" />
+
+		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
+
+		<flow-ref doc:name="query" name="soql-query"/>
+	</flow>
+
+	<flow name="get-phone">
+		<logger doc:name="get phone" level="INFO" category="app" message="#['Query get-phone']" />
+		<ee:transform doc:name="create filter" >
+			<ee:variables >
+				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
+				output application/java
+				---
+					"'" ++ joinBy(payload.contactId, "','") ++ "'"
+				]]>
+				</ee:set-variable>	
+			</ee:variables>
+		</ee:transform>
+
+		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
+		<set-variable variableName="queryStatement" value="${file::script-phone-query.dwl}" doc:name="query statement" />
+		<set-variable variableName="buildResponse" value="${file::script-phone-response.dwl}" doc:name="build response" />
+
+		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
+
+		<flow-ref doc:name="query" name="soql-query"/>
+	</flow>
+
+</mule>
