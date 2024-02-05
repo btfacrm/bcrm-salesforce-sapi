@@ -7,7 +7,7 @@ if (payload != null)
 		Id:					item.Id,
 		ci:					item.SSOT_Contact_ID__pc as Number,
 		PersonOtherPhone:	item.PersonOtherPhone,
-		Phone:				item.Phone,
+		PersonHomePhone:	item.PersonHomePhone,
 		PersonMobilePhone:	item.PersonMobilePhone,
 		Fax:				item.Fax
 	}

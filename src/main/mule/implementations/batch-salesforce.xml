@@ -16,6 +16,13 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 		
+	<sub-flow name="initialize-batch">
+		<logger level="INFO" category="app" message="#['Records: ' ++ (sizeOf(payload) as String default '') ]" /> 
+		<set-variable doc:name="start service" variableName="start" value="#[now() as Number]" />
+		<set-variable doc:name="save payload" variableName="originalPayload" value="#[payload]"  />
+		<set-variable doc:name="initialize batch list" variableName="batchList" value="#[[]]"  />
+	</sub-flow>
+	
 	<flow name="job-batch" >
 		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
 		<set-payload doc:name="serialize" value="#[output application/java --- payload]"/>
@@ -96,13 +103,6 @@
 		<flow-ref doc:name="build batch result" name="batch-result"/>
 		<error-handler ref="global-error-handler" />	
 	</flow>
-
-	<sub-flow name="initialize-batch">
-		<logger level="INFO" category="app" message="#['Records: ' ++ (sizeOf(payload) as String default '') ]" /> 
-        <set-variable doc:name="start service" variableName="start" value="#[now() as Number]" />
-        <set-variable doc:name="save payload" variableName="originalPayload" value="#[payload]"  />
-        <set-variable doc:name="initialize batch list" variableName="batchList" value="#[[]]"  />
-	</sub-flow>
 
 	<sub-flow name="batch-result">
 		<ee:transform doc:name="add result to batchList" >

@@ -66,8 +66,8 @@
              CREATE TRUST ACCOUNT RECORDS IN SALESFORCE
              ******************************************** -->
         <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>	
-
         <flow-ref doc:name="get contact ids" name="get-contactid"/>
+        
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
@@ -87,6 +87,29 @@
         <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
 
         <flow-ref doc:name="run job" name="job-bulk"/>
+
+        <!-- ********************************************
+             CREATE ADDRESS RECORDS IN SALESFORCE
+             ******************************************** -->
+        <ee:transform doc:name="build Salesforce payload for trust account" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/json
+                ---
+                vars.originalPayload map (item, index) -> {
+                    'Beneficiary__c': (vars.listIds filter ( $.contactId == item.contactId )).id[0]
+                }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Address__c" />
+        <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
+
+        <flow-ref doc:name="run job" name="job-bulk"/>
+     
+
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />
     </flow>
