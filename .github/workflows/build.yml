@@ -7,9 +7,9 @@ on:
 
 jobs: 
   Mulesoft:
-    uses: CoveredCA/common-devops/.github/workflows/mule-build.yml@main
+    uses: btfacrm/common-devops/.github/workflows/mule-build.yml@main
     with:
-      keyvault-key: CoveredCA-KV-Mulesoft
+      keyvault-key: jpworks-keyvault
     secrets:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
     
@@ -18,4 +18,3 @@ jobs:
       contents: write
       issues: write
       checks: write
-      pull-requests: write

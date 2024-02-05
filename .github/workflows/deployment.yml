@@ -6,13 +6,13 @@ on:
 
 jobs: 
   Deployment:
-    uses: CoveredCA/common-devops/.github/workflows/mule-deployment.yml@main
+    uses: btfacrm/common-devops/.github/workflows/mule-deployment.yml@main
     if: |
       contains(toJson(github.event.issue.labels), 'dev') ||
       contains(toJson(github.event.issue.labels), 'tst') ||
       contains(toJson(github.event.issue.labels), 'prd')
     with:
-      keyvault-key: CoveredCA-KV-Mulesoft
+      keyvault-key: jpworks-keyvault
     secrets:
       azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -21,4 +21,3 @@ jobs:
       contents: write
       issues: write
       checks: write
-      pull-requests: write
