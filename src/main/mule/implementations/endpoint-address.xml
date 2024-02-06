@@ -23,31 +23,32 @@
              UPDATE ACCOUNT RECORDS IN SALESFORCE
              ******************************************** -->
 
-        <flow-ref doc:name="get account ids" name="get-contactid"/>
-        
-        <ee:transform doc:name="build Salesforce payload for Account" >
+        <flow-ref doc:name="get account ids" name="get-address"/>
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+        <ee:transform doc:name="build Salesforce payload for Account">
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/json
                 ---
                 vars.originalPayload map (address) -> {
                     'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
-                    'PersonMailingStreet': address.address1,
-                    'PersonMailingCity': address.city,
-                    'PersonMailingStateCode': address.state,
-                    'PersonMailingPostalCode': address.zipCode
+                    'Address_1__c': address.address1,
+                    'Address_2__c': address.address2,
+                    'Address_3__c': address.address3,
+                    'City__c': address.city,
+                    'State__c': address.state,
+                    'Zip_Code__c': address.zipCode,
+                    'Type__c': address."type"
                 }
                 ]]>
                 </ee:set-payload>
             </ee:message>
         </ee:transform>
 
-        <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
+        <set-variable variableName="salesforceObject" value="Address__c" doc:name="Salesforce object" />
         <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
 
-        <!-- 
-        <flow-ref doc:name="run job" name="job-batch"/>
-        -->
         <flow-ref doc:name="run job" name="job-bulk"/>
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		

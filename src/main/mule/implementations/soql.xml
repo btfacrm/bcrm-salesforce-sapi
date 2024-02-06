@@ -21,7 +21,7 @@
 			<salesforce:parameters ><![CDATA[#[output application/java --- { queryFilter : vars.queryFilter}]]]></salesforce:parameters>
 		</salesforce:query>
  
-		<!--<logger doc:name="salesforce result" level="DEBUG" category="app" message="#[payload]"/>-->
+		<!--<logger doc:name="salesforce result" level="DEBUG" category="app" message="#[output application/json - payload]"/>-->
 
 		<ee:dynamic-evaluate doc:name="evaluate" expression="#[vars.buildResponse]" target="listIds"/>
 		<logger doc:name="result" level="DEBUG" category="app" message="#['listIds size: ' ++ (sizeOf(vars.listIds) as String default '') ]" /> 
@@ -87,6 +87,28 @@
 		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
 		<set-variable variableName="queryStatement" value="${file::script-phone-query.dwl}" doc:name="query statement" />
 		<set-variable variableName="buildResponse" value="${file::script-phone-response.dwl}" doc:name="build response" />
+
+		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
+
+		<flow-ref doc:name="query" name="soql-query"/>
+	</flow>
+
+	<flow name="get-address">
+		<logger doc:name="get address" level="INFO" category="app" message="#['Query get-address']" />
+		<ee:transform doc:name="create filter" >
+			<ee:variables >
+				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
+				output application/java
+				---
+					"'" ++ joinBy(payload.contactId, "','") ++ "'"
+				]]>
+				</ee:set-variable>	
+			</ee:variables>
+		</ee:transform>
+
+		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
+		<set-variable variableName="queryStatement" value="${file::script-address-query.dwl}" doc:name="query statement" />
+		<set-variable variableName="buildResponse" value="${file::script-address-response.dwl}" doc:name="build response" />
 
 		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
 
