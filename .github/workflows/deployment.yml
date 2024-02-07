@@ -9,7 +9,6 @@ jobs:
     uses: btfacrm/common-devops/.github/workflows/mule-deployment.yml@main
     if: |
       contains(toJson(github.event.issue.labels), 'dev') ||
-      contains(toJson(github.event.issue.labels), 'tst') ||
       contains(toJson(github.event.issue.labels), 'prd')
     with:
       keyvault-key: jpworks-keyvault
