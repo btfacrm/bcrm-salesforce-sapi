@@ -49,8 +49,7 @@
                     'Type_Code__pc': item.typeCode,
                     'Type__pc': item.typeDescription,
                     'Category_Code__pc': item.categoryCode,
-                    'Category__pc': item.categoryDescription,
-                    'Phone': '123'                                  
+                    'Category__pc': item.categoryDescription
                 }
                 ]]>
                 </ee:set-payload>

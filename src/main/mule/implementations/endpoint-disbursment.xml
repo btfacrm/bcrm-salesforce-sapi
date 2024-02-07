@@ -29,7 +29,7 @@
                 vars.originalPayload map (item, index) -> {
                     'Trust_Account__c' : (vars.listIds filter ( $.account == item.account )).id[0],
                     'Transaction_Number__c': item.transactionNumber,
-                    'Name': item.code,
+                    'Code__c': item.code,
                     'Amount__c': item.amount
                 }
                 ]]>
