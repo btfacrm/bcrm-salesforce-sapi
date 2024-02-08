@@ -25,7 +25,7 @@
 		<http:listener-connection
 			host="0.0.0.0"
 			port="${https.port}"
-			protocol="${httpprotocol}" 
+			protocol="${httpsprotocol}" 
 			tlsContext="TLS_Context" />
 	</http:listener-config>
 
