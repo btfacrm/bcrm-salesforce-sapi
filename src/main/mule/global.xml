@@ -30,7 +30,7 @@
 
 	<validation:config name="Validation_Config" />
  		
-	<import file="global-configuration.xml" />
+	<!--<import file="global-configuration.xml" />-->
 
 	<import file="global-configuration-salesforce.xml" />	
 		
