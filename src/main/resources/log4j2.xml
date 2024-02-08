@@ -101,6 +101,18 @@
             name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" 
             level="INFO"/>
 
+        <!-- Disabling Service Messages -->
+        <!-- 1. Country database not found 
+            https://help.mulesoft.com/s/article/INFO-message-Country-database-not-found-with-Runtime-Fabric-and-Cloudhub-v2-0
+        -->
+        <AsyncLogger 
+            name="com.mulesoft.analytics.collector.metrics.CountryMapper" level="WARN"/>
+            
+        <!-- 2. Suppress Raise Error Stack Details  
+            https://help.mulesoft.com/s/article/How-to-Suppress-Raise-Error-Stack-Details-in-the-Logs
+        -->
+        <AsyncLogger name="org.mule.runtime.core.internal.exception.OnErrorContinueHandler" level="FATAL"/>
+
         <!-- Application logs -->
         <AsyncLogger name="app" level="${sys:logapplication}"/>
 

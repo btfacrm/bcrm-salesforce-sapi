@@ -10,14 +10,7 @@ api:
 test:
   basepath: "/api/contact"
 
-messages:
-  # Batch processing
-  batch-stillrunning: "The batch process is still running"
-  batch-success: "The records were created or updated successfully"
-  batch-error: "There was an problem while proccessing the batch"
-
 # Components to configure:
 # - Salesforce connector
 # - TLS connector
-# - Splunk
 # - Mulesoft Gatekeeper (API Manager)

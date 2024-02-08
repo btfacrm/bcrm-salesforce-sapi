@@ -6,7 +6,7 @@
 	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/api-gateway 
 		http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd 
@@ -15,29 +15,18 @@
 		http://www.mulesoft.org/schema/mule/mule-apikit 
 		http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  
 		http://www.mulesoft.org/schema/mule/http 
-		http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+		http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 		http://www.mulesoft.org/schema/mule/core 
 		http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
-	<configuration-properties
-		doc:name="Configuration properties"
-		file="config.yaml" />
-
- 
+	<configuration-properties file="config.yaml" />
 
 	<http:listener-config name="api-httpListenerConfig">
-
-		<!--
 		<http:listener-connection
 			host="0.0.0.0"
 			port="${https.port}"
 			protocol="${httpprotocol}" 
 			tlsContext="TLS_Context" />
-		-->
-		<http:listener-connection
-			host="0.0.0.0"
-			port="${http.port}"
-			protocol="${httpprotocol}"  />
 	</http:listener-config>
 
 	<apikit:config
@@ -52,25 +41,13 @@
 		doc:name="API Autodiscovery"
 		flowRef="api-main" />
 
-	<validation:config
-		name="Validation_Config"
-		doc:name="Validation Config" />
+	<validation:config name="Validation_Config" />
  		
-	<import 
-		doc:name="Import" 
-		file="global-configuration.xml" />
+	<import file="global-configuration.xml" />
 
-	<!--
-	<import 
-		doc:name="Import" 
-		file="global-configuration-tls.xml" />		
-	-->
+	<import file="global-configuration-tls.xml" />		
 
-	<import 
-		doc:name="Import" 
-		file="global-configuration-salesforce.xml" />	
+	<import file="global-configuration-salesforce.xml" />	
 		
-	<import 
-		doc:name="Import" 
-		file="global-error.xml" />
+	<import file="global-error.xml" />
 </mule>

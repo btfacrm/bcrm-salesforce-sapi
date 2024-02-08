@@ -24,8 +24,9 @@
 	</sub-flow>
 	
 	<flow name="job-batch" >
-		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
+		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>		
 		<set-payload doc:name="serialize" value="#[output application/java --- payload]"/>
+
 		<try doc:name="try">
 			<batch:job jobName="postBatch_Job"  blockSize="1">
 				<batch:process-records >
@@ -59,6 +60,8 @@
 	
 	<flow name="job-bulk" >
 		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
+		<set-variable doc:name="initialize attempt" variableName="attempt" value="#[1]"/>
+		<set-variable doc:name="initialize counterLoop" variableName="counterLoop" value="#[1]"/>
 
 		<ee:transform doc:name="build bulk csv" >
             <ee:message >
@@ -92,7 +95,19 @@
 				<otherwise >
 					<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
 					<set-variable doc:name="message still running" variableName="message" value="${messages.batch-stillrunning}"/>
-					<logger doc:name="bulk result" level="DEBUG" category="app"  message="#[output application/json --- 'Job status: ' ++ payload.state]" />
+
+					<choice doc:name="Choice" >
+						<when expression='#[vars.counterLoop == 1]'>
+							<logger doc:name="bulk result" level="DEBUG" category="app"  message="#['Attempt: ' ++ (vars.attempt as String) ++  ', Job status: ' ++ payload.state]" />
+						</when>
+						<when expression='#[vars.counterLoop == 5]'>
+							<set-variable doc:name="initialize counterLoop" variableName="counterLoop" value="#[1]"/>
+						</when>
+						<otherwise>
+							<set-variable doc:name="increase attempt" variableName="attempt" value="#[vars.attempt + 1]"/>
+							<set-variable doc:name="increase counterLoop" variableName="counterLoop" value="#[vars.counterLoop + 1]"/>
+						</otherwise>
+					</choice>
 					<raise-error doc:name="Raise error" type="MULE:CONNECTIVITY" description="The batch job still processing in Salesforce"/>
 				</otherwise>
 			</choice>
