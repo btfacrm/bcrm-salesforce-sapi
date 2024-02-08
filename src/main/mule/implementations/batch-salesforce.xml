@@ -81,7 +81,7 @@
 			externalIdFieldName="Id"/>
 		<set-variable doc:name="save jobId" variableName="jobId" value="#[payload.id]"/>
 
-		<until-successful doc:name="until sucess" maxRetries="60" millisBetweenRetries="1000">
+		<until-successful doc:name="until sucess" maxRetries="120" millisBetweenRetries="1000">
 			<salesforce:get-job-state-bulk-api-v2 doc:name="job state"  config-ref="GlobalSalesforceConfig" id="#[vars.jobId]"/>
 			<choice doc:name="choice"  >
 				<when expression='#[payload.state == "JobComplete"]'>

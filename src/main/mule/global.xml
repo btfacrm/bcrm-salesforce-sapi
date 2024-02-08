@@ -6,6 +6,9 @@
 	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/api-gateway 
@@ -16,18 +19,22 @@
 		http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  
 		http://www.mulesoft.org/schema/mule/http 
 		http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+
+		http://www.mulesoft.org/schema/mule/tls 
+		http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+
 		http://www.mulesoft.org/schema/mule/core 
 		http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
 	<configuration-properties file="config.yaml" />
 
-	<http:listener-config name="api-httpListenerConfig">
-		<http:listener-connection
-			host="0.0.0.0"
-			port="${https.port}"
-			protocol="${httpsprotocol}" 
-			tlsContext="TLS_Context" />
-	</http:listener-config>
+	<validation:config name="Validation_Config" />
+ 		
+	<import file="global-configuration.xml" />
+
+	<import file="global-configuration-salesforce.xml" />	
+		
+	<import file="global-error.xml" />
 
 	<apikit:config
 		name="api-config"
@@ -39,15 +46,19 @@
 		apiId="${api.id}"
 		ignoreBasePath="true"
 		doc:name="API Autodiscovery"
-		flowRef="api-main" />
+		flowRef="api-main" />	
 
-	<validation:config name="Validation_Config" />
- 		
-	<import file="global-configuration.xml" />
-
-	<import file="global-configuration-tls.xml" />		
-
-	<import file="global-configuration-salesforce.xml" />	
-		
-	<import file="global-error.xml" />
+	<http:listener-config name="api-httpListenerConfig">
+		<http:listener-connection
+			host="0.0.0.0"
+			port="8082"
+			protocol="HTTPS">
+			<tls:context> 
+				<tls:key-store type="jks"
+					path="${jks.path}"
+					keyPassword="${jks.keypassword}"
+					password="${jks.keypassword}" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
 </mule>

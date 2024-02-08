@@ -11,7 +11,7 @@
 
 	<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
 	<artifactId>bcrm-salesforce-sapi-asset</artifactId>
-	<version>1.0.6</version> 
+	<version>1.0.7</version> 
 	<packaging>mule-application</packaging>
 
 	<name>bcrm-salesforce-sapi</name>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>common-btfacore</artifactId>
-			<version>1.0.12</version>
+			<version>1.0.13</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 
