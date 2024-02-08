@@ -6,9 +6,6 @@
 	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-
-	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
-
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/api-gateway 
@@ -19,21 +16,13 @@
 		http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  
 		http://www.mulesoft.org/schema/mule/http 
 		http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-
-		http://www.mulesoft.org/schema/mule/tls 
-		http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
-
 		http://www.mulesoft.org/schema/mule/core 
 		http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
 	<configuration-properties file="config.yaml" />
-
 	<validation:config name="Validation_Config" />
- 		
-	<!--<import file="global-configuration.xml" />-->
-
-	<import file="global-configuration-salesforce.xml" />	
-		
+	<import file="global-configuration-salesforce.xml" />
+	<import file="global-configuration-tls.xml" />
 	<import file="global-error.xml" />
 
 	<apikit:config
@@ -51,14 +40,9 @@
 	<http:listener-config name="api-httpListenerConfig">
 		<http:listener-connection
 			host="0.0.0.0"
-			port="8082"
-			protocol="HTTPS">
-			<tls:context> 
-				<tls:key-store type="jks"
-					path="${jks.path}"
-					keyPassword="${jks.keypassword}"
-					password="${jks.keypassword}" />
-			</tls:context>
+			port="${https.port}"
+			protocol="${httpsprotocol}"
+			tlsContext="TLS_Context">
 		</http:listener-connection>
 	</http:listener-config>
 </mule>

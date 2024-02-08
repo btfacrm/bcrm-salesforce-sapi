@@ -111,8 +111,8 @@
         <!-- 2. Suppress Raise Error Stack Details  
             https://help.mulesoft.com/s/article/How-to-Suppress-Raise-Error-Stack-Details-in-the-Logs
         -->
-        <AsyncLogger name="org.mule.runtime.core.internal.exception.OnErrorContinueHandler" level="FATAL"/>
-
+        <AsyncLogger name="org.mule.runtime.core.internal.routing.UntilSuccessfulRouter" level="FATAL"/>
+        
         <!-- Application logs -->
         <AsyncLogger name="app" level="${sys:logapplication}"/>
 

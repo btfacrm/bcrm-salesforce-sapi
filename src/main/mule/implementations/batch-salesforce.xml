@@ -98,16 +98,14 @@
 
 					<choice doc:name="Choice" >
 						<when expression='#[vars.counterLoop == 1]'>
-							<logger doc:name="bulk result" level="DEBUG" category="app"  message="#['Attempt: ' ++ (vars.attempt as String) ++  ', Job status: ' ++ payload.state]" />
+							<logger doc:name="bulk result" level="INFO" category="app"  message="#['Attempt: ' ++ (vars.attempt as String) ++  ' of 120, Job status: ' ++ payload.state]" />
 						</when>
 						<when expression='#[vars.counterLoop == 5]'>
-							<set-variable doc:name="initialize counterLoop" variableName="counterLoop" value="#[1]"/>
+							<set-variable doc:name="initialize counterLoop" variableName="counterLoop" value="#[0]"/>
 						</when>
-						<otherwise>
-							<set-variable doc:name="increase attempt" variableName="attempt" value="#[vars.attempt + 1]"/>
-							<set-variable doc:name="increase counterLoop" variableName="counterLoop" value="#[vars.counterLoop + 1]"/>
-						</otherwise>
 					</choice>
+					<set-variable doc:name="increase attempt" variableName="attempt" value="#[vars.attempt + 1]"/>
+					<set-variable doc:name="increase counterLoop" variableName="counterLoop" value="#[vars.counterLoop + 1]"/>					
 					<raise-error doc:name="Raise error" type="MULE:CONNECTIVITY" description="The batch job still processing in Salesforce"/>
 				</otherwise>
 			</choice>
