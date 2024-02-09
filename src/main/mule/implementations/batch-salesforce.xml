@@ -23,7 +23,7 @@
 		<set-variable doc:name="initialize batch list" variableName="batchList" value="#[[]]"  />
 	</sub-flow>
 	
-	<flow name="job-batch" >
+	<flow name="job-aggregator" >
 		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>		
 		<set-payload doc:name="serialize" value="#[output application/java --- payload]"/>
 
@@ -37,10 +37,10 @@
 									<salesforce:create doc:name="create" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig" />
 								</when>
 								<otherwise>
-									<salesforce:update type="#[vars.salesforceObject]" doc:name="Update" config-ref="GlobalSalesforceConfig"/>
+									<salesforce:update doc:name="Update" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig"/>
 								</otherwise>
 							</choice>
-							<logger doc:name="salesforce result" level="INFO" category="app" message="#[payload]"/> 					
+							<logger doc:name="salesforce result" level="INFO" category="app" message="#[output application/json --- payload]"/> 					
 						</batch:aggregator>
 					</batch:step>
 				</batch:process-records>
@@ -49,7 +49,7 @@
 				</batch:on-complete>
 			</batch:job>
 		</try>
-		<set-variable doc:name="status 200" variableName="httpStatus" value="#[201]" />
+		<set-variable doc:name="status 200" variableName="httpStatus" value="#[200]" />
 		<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}" />
 		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number) - vars.batchStart]"/>
 
@@ -61,7 +61,7 @@
 	<flow name="job-bulk" >
 		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
 		<set-variable doc:name="initialize attempt" variableName="attempt" value="#[1]"/>
-		<set-variable doc:name="initialize counterLoop" variableName="counterLoop" value="#[1]"/>
+		<set-variable doc:name="initialize counterLoop" variableName="loop" value="#[1]"/>
 
 		<ee:transform doc:name="build bulk csv" >
             <ee:message >
@@ -97,15 +97,15 @@
 					<set-variable doc:name="message still running" variableName="message" value="${messages.batch-stillrunning}"/>
 
 					<choice doc:name="Choice" >
-						<when expression='#[vars.counterLoop == 1]'>
+						<when expression='#[vars.loop == 1]'>
 							<logger doc:name="bulk result" level="INFO" category="app"  message="#['Attempt: ' ++ (vars.attempt as String) ++  ' of 120, Job status: ' ++ payload.state]" />
 						</when>
-						<when expression='#[vars.counterLoop == 5]'>
-							<set-variable doc:name="initialize counterLoop" variableName="counterLoop" value="#[0]"/>
+						<when expression='#[vars.loop == 5]'>
+							<set-variable doc:name="initialize loop" variableName="loop" value="#[output application/java --- 0]"/>
 						</when>
 					</choice>
-					<set-variable doc:name="increase attempt" variableName="attempt" value="#[vars.attempt + 1]"/>
-					<set-variable doc:name="increase counterLoop" variableName="counterLoop" value="#[vars.counterLoop + 1]"/>					
+					<set-variable doc:name="increase attempt" variableName="attempt" value="#[output application/java --- vars.attempt + 1]"/>
+					<set-variable doc:name="increase loop" variableName="loop" value="#[output application/java --- vars.loop + 1]"/>					
 					<raise-error doc:name="Raise error" type="MULE:CONNECTIVITY" description="The batch job still processing in Salesforce"/>
 				</otherwise>
 			</choice>
