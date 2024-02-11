@@ -24,8 +24,11 @@
 	</sub-flow>
 	
 	<flow name="job-aggregator" >
-		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>		
-		<set-payload doc:name="serialize" value="#[output application/java --- payload]"/>
+		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number]"/>
+
+		<!-- The payload must come as application/java 
+		<set-payload doc:name="serialize" value="#[output application/java - payload]"/>
+		-->
 
 		<try doc:name="try">
 			<batch:job jobName="postBatch_Job"  blockSize="1">

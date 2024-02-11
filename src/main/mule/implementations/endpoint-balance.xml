@@ -28,12 +28,13 @@
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
-                output application/json
+                output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
                     'Id' : (vars.listIds filter ( $.account == item.account )).id[0],
                     'IIM_Account_Number__c' : item.account,
-                    'Balance__c': item.balance
+                    'Balance__c': item.balance,
+                    'Balance_Date_Time__c': item.update
                 }
                 ]]>
                 </ee:set-payload>

@@ -26,7 +26,7 @@
         <ee:transform doc:name="build Salesforce payload for Accounts" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
-                output application/json
+                output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
                     'FirstName' : item.firstName,
@@ -34,7 +34,8 @@
                     'SSOT_Name__pc': item.name,
                     'Mothers_Maiden_Name__pc': item.motherMaidenName,
                     'SSN__pc': item.ssn,
-                    'SSOT_Contact_ID__pc': item.contactId,
+                    'SSOT_Contact_ID__pc': item.contactId as String,
+                    'PersonBirthdate': item.dateOfBirth as Date,
                     'RecordTypeId': '012OC0000004e2NYAQ'
                 }
                 ]]>
@@ -56,7 +57,7 @@
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
-                output application/json
+                output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
                     'IIM_Account_Number__c' : item.account,
@@ -67,6 +68,7 @@
                     'Region_Code__c': item.regionCode,
                     'Region__c': item.regionDescription,
                     'Tribe_Code__c': item.tribeCode,
+                    'Tribe_Description__c': item.tribeDescription,
                     'Tier_Level_Code__c': item.tierLevelCode as String,
                     'Tier_Level__c': item.tierLevelDescription,
                     'Freeze_Code__c': item.freezeCode,
@@ -92,7 +94,7 @@
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
-                output application/json
+                output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
                     'Beneficiary__c': (vars.listIds filter ( $.contactId == item.contactId )).id[0]
