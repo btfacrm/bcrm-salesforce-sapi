@@ -25,26 +25,37 @@
 
         <flow-ref doc:name="get account ids" name="get-accountsid"/>
         
-        <ee:transform doc:name="build Salesforce payload for trust account" >
-            <ee:message >
-                <ee:set-payload ><![CDATA[%dw 2.0
-                output application/java
-                ---
-                vars.originalPayload map (item, index) -> {
-                    'Id' : (vars.listIds filter ( $.account == item.account )).id[0],
-                    'IIM_Account_Number__c' : item.account,
-                    'Balance__c': item.balance,
-                    'Balance_Date_Time__c': item.update
-                }
-                ]]>
-                </ee:set-payload>
-            </ee:message>
-        </ee:transform>
+        <choice doc:name="Choice" >
+            <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
+                <ee:transform doc:name="build Salesforce payload for trust account" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                        output application/java
+                        ---
+                        vars.originalPayload map (item, index) -> {
+                            'Id' : (vars.listIds filter ( $.account == item.account )).id[0],
+                            'IIM_Account_Number__c' : item.account,
+                            'Balance__c': item.balance,
+                            'Balance_Date_Time__c': item.update
+                        }
+                        ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+                
+                <set-variable variableName="salesforceObject" value="Trust_Account__c" doc:name="Salesforce object" />
+                <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
         
-        <set-variable variableName="salesforceObject" value="Trust_Account__c" doc:name="Salesforce object" />
-        <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+                <flow-ref doc:name="run job" name="job-bulk"/>
+            </when>
+            <otherwise>
+                <logger doc:name="bulk result" level="INFO" category="app" 
+                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', IIM accounts in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
+                <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
+                <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
+            </otherwise>
+        </choice>
 
-        <flow-ref doc:name="run job" name="job-bulk"/>
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		
     </flow>

@@ -25,24 +25,35 @@
 
         <flow-ref doc:name="get account ids" name="get-contactid"/>
         
-        <ee:transform doc:name="build Salesforce payload for Account" >
-            <ee:message >
-                <ee:set-payload ><![CDATA[%dw 2.0
-                output application/json
-                ---
-                vars.originalPayload map (email) -> {
-                    'Id' : (vars.listIds filter ( $.contactId == email.contactId )).id[0],
-                    'PersonEmail': email.email
-                }
-                ]]>
-                </ee:set-payload>
-            </ee:message>
-        </ee:transform>
+        <choice doc:name="Choice" >
+            <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
+                <ee:transform doc:name="build Salesforce payload for Account" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                        output application/json
+                        ---
+                        vars.originalPayload map (email) -> {
+                            'Id' : (vars.listIds filter ( $.contactId == email.contactId )).id[0],
+                            'PersonEmail': email.email
+                        }
+                        ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+        
+                <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
+                <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+        
+                <flow-ref doc:name="run job" name="job-bulk"/>
+            </when>
+            <otherwise>
+                <logger doc:name="bulk result" level="INFO" category="app" 
+                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', IIM accounts in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
+                <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
+                <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
+            </otherwise>
+        </choice>
 
-        <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
-        <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
-
-        <flow-ref doc:name="run job" name="job-bulk"/>
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		
     </flow>
