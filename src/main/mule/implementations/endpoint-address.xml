@@ -23,7 +23,7 @@
              UPDATE ACCOUNT RECORDS IN SALESFORCE
              ******************************************** -->
 
-        <flow-ref doc:name="get account ids" name="get-address"/>
+        <flow-ref doc:name="get address ids" name="get-address"/>
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <choice doc:name="Choice" >

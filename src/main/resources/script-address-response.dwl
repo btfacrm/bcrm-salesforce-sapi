@@ -5,6 +5,6 @@ if (payload != null)
 	payload map (item, value) ->
 	{
 		id: 		item.Id,
-	    contactId: 	item.Beneficiary__r.SSOT_Contact_ID__pc as Number
+	    contactId: 	item.Beneficiary__r.SSOT_Contact_ID__pc
 	}
 else {}
