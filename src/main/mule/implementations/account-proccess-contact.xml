@@ -17,13 +17,11 @@
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
     <flow name="process-contact">    
-
-        <!-- *****************************************
-            CREATE process
-            ****************************************** -->
         
         <!-- 
-            Find the contactId in Salesforce and create a new input payload
+            Create/Update PersonAccount in Salesforce
+
+            Find the contactId in PersonAccount and create a new input payload
         -->
 
         <flow-ref doc:name="get contact ids" name="get-contactid"/>
@@ -91,8 +89,8 @@
 
                 <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
 
-                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Account" />
-                <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/>
+                <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
+                <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
             </when>

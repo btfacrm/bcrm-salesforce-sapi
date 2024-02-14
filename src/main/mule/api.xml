@@ -48,7 +48,7 @@
     
         
     <flow name="post:\account:application\json:api-config">
-		  <flow-ref doc:name="account" name="endpoint-account"/>
+		  <flow-ref doc:name="account" name="account-endpoint"/>
     </flow>
 
     <flow name="post:\disbursment:application\json:api-config">
@@ -64,7 +64,7 @@
     </flow>
 
     <flow name="post:\address:application\json:api-config">
-		  <flow-ref doc:name="address" name="endpoint-address"/>
+		  <flow-ref doc:name="address" name="address-endpoint"/>
     </flow>
 
     <flow name="post:\email:application\json:api-config">
