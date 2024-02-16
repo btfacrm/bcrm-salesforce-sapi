@@ -128,14 +128,14 @@
                 ---
 				vars.batchList ++
 				[{
-					id: payload.id,
+					job: payload.id,
 					state: payload.state,
 					object: payload.object,
 					operation: payload.operation,
 					recordsFailed: payload.numberRecordsFailed,
 					recordsProcessed: payload.numberRecordsProcessed,
-					salesforceProcessingTime: payload.totalProcessingTime,
-					batchProcessingSeconds: vars.internalBatchDuration
+					datastoreProcessingTime: payload.totalProcessingTime,
+					batchProcessingTime: vars.internalBatchDuration
 				}]
                 ]]>
 				</ee:set-variable>	
@@ -153,6 +153,7 @@
 					---
 					{
 						message: vars.message,
+						status: vars.httpStatus,
 						receivedRecords: sizeOf(vars.originalPayload),
 						serviceProcessingTime: vars.serviceProcessingTime,
 						correlationId: correlationId,
@@ -174,6 +175,7 @@
 					---
 					{
 						message: vars.message,
+						status: vars.httpStatus,
 						receivedRecords: vars.receivedRecords,
 						jobId: if ( isEmpty(payload.id) ) "" else payload.id,
 						jobState: if ( isEmpty(payload.state) ) "" else payload.state,
