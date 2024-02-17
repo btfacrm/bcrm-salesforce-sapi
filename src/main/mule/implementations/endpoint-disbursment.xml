@@ -28,10 +28,10 @@
                 ---
                 vars.originalPayload map (item, index) -> {
                     'Trust_Account__c' : (vars.listIds filter ( $.account == item.account )).id[0],
-                    'Transaction_Number__c': item.transactionNumber,
+                    'Transaction_Number__c': item.transaction,
                     'Code__c': item.code,
                     'Amount__c': item.amount,
-                    'Transaction_Date_Time__c': item.date
+                    'Transaction_Date_Time__c': item.date as DateTime
                 }
                 ]]>
                 </ee:set-payload>
@@ -40,6 +40,8 @@
 
         <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account_Disbursement__c" />
         <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
+
+        <remove-variable doc:name="remove variable" variableName="listIds"/>
 
         <flow-ref doc:name="run job" name="job-bulk"/>
         <flow-ref doc:name="service response" name="service-response"/>

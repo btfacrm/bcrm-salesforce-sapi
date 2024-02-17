@@ -13,6 +13,7 @@ test:
 messages:
   # Batch processing
   batch-primaryidentifier-notpresent: "There are some primary identifiers not present in the datastore"
+  batch-backend-errorrecords: "Some records couldn't be processed in datastore"
 
 # Components to configure:
 # - Salesforce connector
