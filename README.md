@@ -1,12 +1,12 @@
 # BCRM Salesforce System API
 ![Powered by](https://img.shields.io/badge/Powered%20by-Mulesoft-535597.svg)
-  ![Unit test](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/cca-salesforce-sapi-ut.svg)
-  ![Code coverage](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/cca-salesforce-sapi-cc.svg)
+  ![Unit test](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/bcrm-salesforce-sapi-ut.svg)
+  ![Code coverage](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/bcrm-salesforce-sapi-cc.svg)
   ![Build](https://github.com/CoveredCA/cca-salesforce-sapi/actions/workflows/build.yml/badge.svg)
-  ![Build job](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/cca-salesforce-sapi-wf.svg)
-  ![Release](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/cca-salesforce-sapi-re.svg)
-  ![dev version](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/cca-salesforce-sapi-dev.svg)
-  ![dev test](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/cca-salesforce-sapi-dev-test.svg) 
+  ![Build job](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/bcrm-salesforce-sapi-wf.svg)
+  ![Release](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/bcrm-salesforce-sapi-re.svg)
+  ![dev version](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/bcrm-salesforce-sapi-dev.svg)
+  ![dev test](https://gist.githubusercontent.com/CCA-DATA/76926254d3c61cb0f70aa878e4c12fbb/raw/bcrm-salesforce-sapi-test.svg) 
 <br>
 
 Mulesoft template for Salesforce API services.
