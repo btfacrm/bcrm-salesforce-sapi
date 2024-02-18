@@ -19,7 +19,7 @@
     <flow name="endpoint-disbursment"> 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <flow-ref doc:name="Get Account Ids" name="get-accountsid"/>
+        <flow-ref doc:name="Get Account Ids" name="query-account"/>
 
         <ee:transform doc:name="build Salesforce payload for transactions" >
             <ee:message >

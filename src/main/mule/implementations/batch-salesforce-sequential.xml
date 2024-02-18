@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core 
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/batch 
+		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	
+	<flow name="job-sequential" >
+		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number {unit: 'milliseconds'}]"/>
+		<foreach doc:name="For Each" counterVariableName="counter">
+
+			<ee:transform doc:name="SQL Insert Payload" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+					output application/java
+					---
+					[ payload ]
+					]]>
+					</ee:set-payload>
+				</ee:message>
+			</ee:transform>
+
+			<choice doc:name="Choice" >
+				<when expression='#[vars.bulkOperation == "insert"]'>
+					<salesforce:create doc:name="create" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig" />
+				</when>
+				<otherwise>
+					<salesforce:update doc:name="Update" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig"/>
+				</otherwise>
+			</choice>
+
+			<choice doc:name="verify success" >
+				<when expression="#[payload != null and payload.successful == true]">
+					<logger doc:name="success"
+						level="DEBUG" 
+						message="#['Record created/updated successfully with id=' ++ payload.items[0].id]" 
+						category="app"/>
+					<set-variable doc:name="status 200" variableName="httpStatus" value="#[200]" />
+					<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}" />
+				</when>
+				<otherwise >
+
+					<logger doc:name="error"
+						level="DEBUG" 
+						message="There was a problem while creating the record" 
+						category="app"/>
+					<logger doc:name="result" 
+						level="DEBUG" 
+						message="#[output application/json --- payload]" 
+						category="app"/>
+					<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]" />
+					<set-variable doc:name="message error" variableName="message" value="${messages.batch-backend-errorrecords}" />
+				</otherwise >
+			</choice>
+		</foreach>
+
+		<set-variable doc:name="job state" variableName="state" value="#[ if (payload.successful == true) 'success' else 'error'  ]"/>
+		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number {unit: 'milliseconds'}) - vars.batchStart]"/>
+
+		<flow-ref doc:name="build batch result" name="batch-result"/>
+
+		<error-handler ref="global-error-handler" />
+	</flow>
+
+
+	<flow name="job-aggregator" >
+		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number {unit: 'milliseconds'}]"/>
+
+		<!-- The payload must come as application/java 
+		<set-payload doc:name="serialize" value="#[output application/java - payload]"/>
+		-->
+
+		<try doc:name="try">
+			<batch:job jobName="salesforceBatch"  blockSize="1" maxFailedRecords="5000">
+				<batch:process-records >
+					<batch:step name="Batch_Step" >
+						<batch:aggregator doc:name="batch aggregator" size="5">
+							<choice doc:name="Choice" >
+								<when expression='#[vars.bulkOperation == "insert"]'>
+									<salesforce:create doc:name="create" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig" />
+								</when>
+								<otherwise>
+									<salesforce:update doc:name="Update" type="#[vars.salesforceObject]" config-ref="GlobalSalesforceConfig"/>
+								</otherwise>
+							</choice>
+
+							<logger doc:name="result" level="DEBUG" message="#[output application/json --- payload]" category="app"/>							
+						</batch:aggregator>
+					</batch:step>
+				</batch:process-records>
+				<batch:on-complete>
+					<logger doc:name="batch result" level="INFO" category="app" message="#[payload]"/> 					
+				</batch:on-complete>
+			</batch:job>
+		</try>
+	
+		<choice doc:name="verify job result" >
+			<when expression='#[payload.successful == true]'>
+				<set-variable doc:name="status 200" variableName="httpStatus" value="#[200]" />
+				<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}" />
+			</when>
+			<otherwise>
+				<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]" />
+				<set-variable doc:name="message error" variableName="message" value="${messages.batch-backend-errorrecords}" />
+			</otherwise>
+		</choice>
+
+		<set-variable doc:name="job state" variableName="state" value="#[ if (payload.successful == true) 'success' else 'error'  ]"/>
+		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number {unit: 'milliseconds'}) - vars.batchStart]"/>
+
+		<flow-ref doc:name="build batch result" name="batch-result"/>
+		<error-handler ref="global-error-handler" />
+	</flow>
+
+</mule>

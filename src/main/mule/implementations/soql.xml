@@ -21,16 +21,13 @@
 			<salesforce:parameters ><![CDATA[#[output application/java --- { queryFilter : vars.queryFilter}]]]></salesforce:parameters>
 		</salesforce:query>
  
-		<!--<logger doc:name="salesforce result" level="DEBUG" category="app" message="#[output application/json - payload]"/>-->
-
 		<ee:dynamic-evaluate doc:name="evaluate" expression="#[vars.buildResponse]" target="listIds"/>
-		<logger doc:name="result" level="DEBUG" category="app" message="#['listIds size: ' ++ (sizeOf(vars.listIds) as String default '') ]" /> 
+		<!-- <logger doc:name="result" level="DEBUG" category="app" message="#['listIds size: ' ++ (sizeOf(vars.listIds) as String default '') ]" /> -->
 		<error-handler ref="global-error-handler" />
 	</flow>
 
-	<flow name="get-accountsid">
-
-		<logger doc:name="get ids" level="INFO" category="app" message="#['Query get-accounts-id']" />
+	<flow name="query-account">
+		<logger doc:name="query account" level="INFO" category="app" message="#['Query account']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
@@ -42,15 +39,13 @@
 			</ee:variables>
 		</ee:transform>
 
-		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
 		<set-variable variableName="queryStatement" value="${file::script-account-query.dwl}" doc:name="query statement" />
 		<set-variable variableName="buildResponse" value="${file::script-account-response.dwl}" doc:name="build response" />
-
 		<flow-ref doc:name="query" name="soql-query"/>
 	</flow>
 
-	<flow name="get-contactid">
-		<logger doc:name="get ids" level="INFO" category="app" message="#['Query get-contactid']" />
+	<flow name="query-contact">
+		<logger doc:name="query contact" level="INFO" category="app" message="#['Query contact']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
@@ -62,17 +57,13 @@
 			</ee:variables>
 		</ee:transform>
 
-		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
 		<set-variable variableName="queryStatement" value="${file::script-contactid-query.dwl}" doc:name="query statement" />
 		<set-variable variableName="buildResponse" value="${file::script-contactid-response.dwl}" doc:name="build response" />
-
-		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
-
 		<flow-ref doc:name="query" name="soql-query"/>
 	</flow>
 
-	<flow name="get-phone">
-		<logger doc:name="get phone" level="INFO" category="app" message="#['Query get-phone']" />
+	<flow name="query-phone">
+		<logger doc:name="query phone" level="INFO" category="app" message="#['Query phone']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
@@ -84,17 +75,15 @@
 			</ee:variables>
 		</ee:transform>
 
-		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
+		<!--<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> -->
 		<set-variable variableName="queryStatement" value="${file::script-phone-query.dwl}" doc:name="query statement" />
 		<set-variable variableName="buildResponse" value="${file::script-phone-response.dwl}" doc:name="build response" />
-
 		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
-
 		<flow-ref doc:name="query" name="soql-query"/>
 	</flow>
 
-	<flow name="get-address">
-		<logger doc:name="get address" level="INFO" category="app" message="#['Query get-address']" />
+	<flow name="query-address">
+		<logger doc:name="query address" level="INFO" category="app" message="#['Query address']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
@@ -106,12 +95,8 @@
 			</ee:variables>
 		</ee:transform>
 
-		<logger level="DEBUG" category="app" message="#['queryFilter size: ' ++ (sizeOf(vars.queryFilter) as String default '') ]" /> 
 		<set-variable variableName="queryStatement" value="${file::script-address-query.dwl}" doc:name="query statement" />
 		<set-variable variableName="buildResponse" value="${file::script-address-response.dwl}" doc:name="build response" />
-
-		<!--<logger doc:name="print queryStatement" level="DEBUG" category="app" message="#[vars.queryStatement]"/>-->
-
 		<flow-ref doc:name="query" name="soql-query"/>
 	</flow>
 

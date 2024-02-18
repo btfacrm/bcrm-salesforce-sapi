@@ -24,8 +24,8 @@
             Find the contactId in PersonAccount and create a new input payload
         -->
 
-        <flow-ref doc:name="get contact ids" name="get-contactid"/>
-        <logger level="DEBUG" category="app" message="#[output application/json --- vars.listIds]" />
+        <flow-ref doc:name="get contact ids" name="query-contact"/>
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 
         <ee:transform doc:name="build payload with Ids" >
 			<ee:variables >
@@ -62,12 +62,12 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
 
-                <logger level="INFO" category="app" message="#[output application/java --- 'Records to create in AccountPerson: ' ++ sizeOf(payload) as String]" />
+                <logger level="INFO" category="app" message="#['Records to create in AccountPerson: ' ++ sizeOf(payload) as String]" />
 
                 <!-- *****************************************
                      Create AccountPerson Object in Salesforce 
@@ -87,7 +87,7 @@
                     </ee:message>
                 </ee:transform>
 
-                <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>
@@ -113,19 +113,18 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
 
-                <logger level="INFO" category="app" message="#[output application/java --- 'Records to update in AccountPerson: ' ++ sizeOf(payload) as String]" />
+                <logger level="INFO" category="app" message="#['Records to update in AccountPerson: ' ++ sizeOf(payload) as String]" />
 
                 <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="set operation" variableName="bulkOperation" value="update"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
             </when>
-
         </choice>    
 
         <error-handler ref="global-error-handler" />

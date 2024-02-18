@@ -23,7 +23,7 @@
              UPDATE ACCOUNT RECORDS IN SALESFORCE
              ******************************************** -->
 
-        <flow-ref doc:name="get account ids" name="get-phone"/>
+        <flow-ref doc:name="query phone" name="query-phone"/>
 
         <choice doc:name="Choice" >
             <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>

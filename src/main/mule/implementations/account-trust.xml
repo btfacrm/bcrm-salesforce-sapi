@@ -21,12 +21,13 @@
         <!-- ********************************************
              Get existing accounts in Salesforce
              ******************************************** -->
-        <logger level="INFO" category="app" message="#[output application/java --- 'Starting the account creation process']" />
+        <!-- <logger level="INFO" category="app" message="#[output application/java - 'Starting the account creation process']" /> -->
         <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>	
-        <flow-ref doc:name="get account ids" name="get-accountsid"/>
+        <flow-ref doc:name="query account" name="query-account"/>
+
         <set-variable doc:name="save account ids" variableName="listAccountIds" value="#[vars.listIds]"/>
         <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>
-        <flow-ref doc:name="get contact ids" name="get-contactid"/>
+        <flow-ref doc:name="query contact" name="query-contact"/>
           
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:variables >
@@ -57,7 +58,7 @@
             </ee:variables >
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <!-- ***********************************************
             Discover the records to create in TrustAccount
@@ -73,12 +74,12 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
 
-                <logger level="INFO" category="app" message="#[output application/java --- 'Records to create in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
+                <logger level="INFO" category="app" message="#['Records to create in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
 
                 <!-- *****************************************
                      Create AccountPerson Object in Salesforce 
@@ -98,7 +99,7 @@
                     </ee:message>
                 </ee:transform>
 
-                <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
                 <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
                 <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>        
@@ -121,19 +122,18 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
 
-                <logger level="INFO" category="app" message="#[output application/java --- 'Records to update in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
+                <logger level="INFO" category="app" message="#['Records to update in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
 
                 <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
                 <set-variable doc:name="set operation" variableName="bulkOperation" value="update"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
             </when>
-
         </choice>
 
         <error-handler ref="global-error-handler" />

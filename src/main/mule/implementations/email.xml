@@ -16,34 +16,32 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-    <flow name="endpoint-balance">     
+    <flow name="endpoint-email">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
         <!-- ********************************************
-             CREATE TRUST ACCOUNT RECORDS IN SALESFORCE
+             UPDATE ACCOUNT RECORDS IN SALESFORCE
              ******************************************** -->
 
-        <flow-ref doc:name="get account ids" name="get-accountsid"/>
+        <flow-ref doc:name="query contact" name="query-contact"/>
         
         <choice doc:name="Choice" >
             <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
-                <ee:transform doc:name="build Salesforce payload for trust account" >
+                <ee:transform doc:name="build Salesforce payload for Account" >
                     <ee:message >
                         <ee:set-payload ><![CDATA[%dw 2.0
-                        output application/java
+                        output application/json
                         ---
-                        vars.originalPayload map (item, index) -> {
-                            'Id' : (vars.listIds filter ( $.account == item.account )).id[0],
-                            'IIM_Account_Number__c' : item.account,
-                            'Balance__c': item.balance,
-                            'Balance_Date_Time__c': item.update
+                        vars.originalPayload map (email) -> {
+                            'Id' : (vars.listIds filter ( $.contactId == email.contactId )).id[0],
+                            'PersonEmail': email.email
                         }
                         ]]>
                         </ee:set-payload>
                     </ee:message>
                 </ee:transform>
-                
-                <set-variable variableName="salesforceObject" value="Trust_Account__c" doc:name="Salesforce object" />
+        
+                <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
                 <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
         
                 <flow-ref doc:name="run job" name="job-bulk"/>
