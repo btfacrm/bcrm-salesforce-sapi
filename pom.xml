@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
 		<artifactId>common-pom</artifactId>
-		<version>1.0.8</version>
+		<version>1.0.13</version>
 		<relativePath/> 
 	</parent> 
 
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>common-btfacore</artifactId>
-			<version>1.0.13</version>
+			<version>1.0.15</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 
