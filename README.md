@@ -6,7 +6,6 @@
   ![Build job](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-wf.svg)
   ![Release](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-re.svg)
   ![dev version](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-dev.svg)
-  ![dev test](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-test.svg) 
 <br>
 
 API Specification for sending the new and update records of beneficiaries from SSoT to BCRM. The unique identifiers to consider in the service are: account, contactId and transaction.
@@ -19,7 +18,8 @@ API Specification for sending the new and update records of beneficiaries from S
 API Specification for sending the new and update records of beneficiaries from SSoT to BCRM. The unique identifiers to consider in the service are: account, contactId and transaction. The next diagram shows the high level architecture of the process:
 
 <br>
-![architecture](https://github.com/btfacrm/bcrm-salesforce-sapi/raw/main/docs/architecture.png)
+
+![architecture](https://raw.githubusercontent.com/btfacrm/bcrm-salesforce-sapi/main/docs/architecture.png)
  
 ## Configuration
 
