@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation=" 
+		http://www.mulesoft.org/schema/mule/ee/core 
+		http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+		http://www.mulesoft.org/schema/mule/core 
+		http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/salesforce 
+		http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+		http://www.mulesoft.org/schema/mule/batch 
+		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+
+    <flow name="address-list">
+
+        <!-- 
+            Get the list of contactId in Address__c
+        -->
+        <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>	
+        <flow-ref doc:name="query address" name="query-address"/>
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" />  -->
+        <set-variable doc:name="save address ids" variableName="listAddressIds" value="#[vars.listIds]"/>
+
+        <!-- 
+            Get the list of contactId in AccountPerson
+        -->
+        <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>	
+        <flow-ref doc:name="query contact" name="query-contact"/>
+
+        <ee:transform doc:name="payload for address">
+            <ee:variables >
+                <ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
+                    output application/json
+                    ---
+                    vars.originalPayload map (address) -> {
+                        'Id' : (vars.listAddressIds filter ( $.contactId == address.contactId )).id[0],
+                        'Beneficiary__c': (vars.listIds filter ( $.contactId == address.contactId )).id[0],
+                        'Address_1__c': address.address1,
+                        'Address_2__c': address.address2,
+                        'Address_3__c': address.address3,
+                        'City__c': address.city,
+                        'State__c': address.state,
+                        'Zip_Code__c': address.zipCode,
+                        'Type__c': address."type"
+                    }
+                    ]]>
+                </ee:set-variable>	
+            </ee:variables>
+        </ee:transform>	
+
+        <!-- 
+            Discover the records to create in Address__c
+        -->
+        <ee:transform doc:name="get the records to create" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/java
+                ---
+                vars.payloadWithIds filter ( isEmpty($.Id) )
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+        <choice doc:name="Choice" >
+            <when expression='#[ sizeOf(payload) > 0 ]'>
+
+                <!-- *****************************************
+                    INSERT process
+                    ****************************************** -->
+                                            
+                <logger level="INFO" category="app" message="#['Records to create in Address__c: ' ++ sizeOf(payload) as String]" />
+
+                <!-- 
+                    Remove the null Id field in the records
+                -->
+                <ee:transform doc:name="remove null ids" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                            output application/java
+                            ---
+                            payload map (items, index) -> (
+                                items filterObject (value, key) -> value != null
+                            )
+                            ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+                <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Address__c" />
+                <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>
+                <flow-ref doc:name="run job" name="job-bulk"/>
+
+            </when>
+
+        </choice>               
+        
+        <!-- *****************************************
+            UPDATE process
+            ****************************************** -->
+
+        <!-- Get the records to update in Address__c -->
+
+        <ee:transform doc:name="get the records to update Address__c" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/java
+                ---
+                vars.payloadWithIds filter ( $.Id != null )
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>        
+
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+        <choice doc:name="Choice" >
+            <when expression='#[ sizeOf(payload) > 0 ]'>
+
+                <!-- 
+                    Remove Beneficiary__c, this field is not updatetable through the api user
+                -->
+                <ee:transform doc:name="remove null ids" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                            output application/java
+                            ---
+                            payload map (address) -> (
+                                address - 'Beneficiary__c'
+                            )
+                            ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <logger level="INFO" category="app" message="#['Records to update in Address__c: ' ++ sizeOf(payload) as String]" />
+
+                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Address__c" />
+                <set-variable doc:name="set operation" variableName="bulkOperation" value="update"/>
+                <flow-ref doc:name="run job" name="job-bulk"/>
+
+            </when>
+        </choice>    
+	
+    </flow>
+</mule>

@@ -19,16 +19,12 @@
     <flow name="address-endpoint">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- ********************************************
-             Update contact Salesforce
-             ******************************************** -->
-
         <!-- 
-            Find the contactId in PersonAccount and create a new input payload
+            Find the contactId in PersonAccount
         -->
 
         <flow-ref doc:name="query contact" name="query-contact"/>
-        <logger level="DEBUG" category="app" message="#[output application/json --- vars.listIds]" />
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 
         <choice doc:name="Choice" >
             <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
@@ -66,16 +62,19 @@
                     </ee:message>
                 </ee:transform>
 
-                <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
         
-                <flow-ref doc:name="run job" name="job-aggregator"/>
+                <flow-ref doc:name="run job" name="job-bulk"/>
+
+                <flow-ref doc:name="add records in address_c" name="address-list"/>
+
             </when>
             <otherwise>
                 <logger doc:name="bulk result" level="INFO" category="app" 
-                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', IIM accounts in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
+                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', contactIds in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
                 <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
                 <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
             </otherwise>
