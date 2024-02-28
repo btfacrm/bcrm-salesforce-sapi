@@ -15,6 +15,10 @@ messages:
   batch-primaryidentifier-notpresent: "There are some primary identifiers not present in the datastore"
   batch-backend-errorrecords: "Some records couldn't be processed in datastore"
 
+batch:
+  maxretries: "120"
+  millisretry: "1000"
+
 # Components to configure:
 # - Salesforce connector
 # - TLS connector

@@ -41,7 +41,7 @@
                     'SSN__pc': item.ssn,
                     'SSOT_Contact_ID__pc': item.contactId as String,
                     'PersonBirthdate': item.dateOfBirth as Date,
-                    'RecordTypeId': '012OC0000004e2NYAQ'
+                    'RecordType.Name': 'Beneficiary'
                 }
                 ]]>
 				</ee:set-variable>	

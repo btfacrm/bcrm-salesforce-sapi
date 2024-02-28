@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Configuration status="INFO" name="cloudhub" 
-    packages="com.mulesoft.ch.logging.appender,org.apache.logging.log4j,io.logz.log4j2">
+<Configuration>
 
 	<!-- Default values for loggers and appenders -->
 	<Properties>
@@ -11,39 +10,7 @@
 
     <Appenders>
 
-        <!-- Logz.io appender  -->
-        <LogzioAppender name="Logzio">
-			<logzioToken>${sys:logzio.token}</logzioToken>
-			<logzioUrl>${sys:logzio.url}</logzioUrl>
-            <logzioType>${sys:domain}</logzioType>
-            <addHostname>true</addHostname>
-            <additionalFields>service=${project.name};version=${project.version};worker=${sys:worker.id};env=${sys:env:-local};worker-host=${sys:host};deployment-region=${sys:application.aws.region};organizationid=${sys:csorganization.id}</additionalFields>
-		</LogzioAppender>
-
-        <!-- Integrate with Your Logging System Using Log4j -->
-        <!-- https://docs.mulesoft.com/cloudhub/custom-log-appender -->
-
-        <!-- 1) Sends log data to CloudHub -->
-        <Log4J2CloudhubLogAppender name="CLOUDHUB"
-                addressProvider="com.mulesoft.ch.logging.DefaultAggregatorAddressProvider"
-                applicationContext="com.mulesoft.ch.logging.DefaultApplicationContext"
-                appendRetryIntervalMs="${sys:logging.appendRetryInterval}"
-                appendMaxAttempts="${sys:logging.appendMaxAttempts}"
-                batchSendIntervalMs="${sys:logging.batchSendInterval}"
-                batchMaxRecords="${sys:logging.batchMaxRecords}"
-                memBufferMaxSize="${sys:logging.memBufferMaxSize}"
-                journalMaxWriteBatchSize="${sys:logging.journalMaxBatchSize}"
-                journalMaxFileSize="${sys:logging.journalMaxFileSize}"
-                clientMaxPacketSize="${sys:logging.clientMaxPacketSize}"
-                clientConnectTimeoutMs="${sys:logging.clientConnectTimeout}"
-                clientSocketTimeoutMs="${sys:logging.clientSocketTimeout}"
-                serverAddressPollIntervalMs="${sys:logging.serverAddressPollInterval}"
-                serverHeartbeatSendIntervalMs="${sys:logging.serverHeartbeatSendIntervalMs}"
-                statisticsPrintIntervalMs="${sys:logging.statisticsPrintIntervalMs}">
-            <PatternLayout pattern="[%d{MM-dd HH:mm:ss}] %-5p %c{1} [%t]: %m%n"/>
-        </Log4J2CloudhubLogAppender>
-
-        <!-- 2) Sends log data to the filesystem of the VM. -->
+        <!-- Sends log data to the filesystem of the VM. -->
         <RollingFile name="FILE"        
                      fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}${sys:domain}.log"
                      filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}${sys:domain}-%i.log">
@@ -98,8 +65,7 @@
 
         <!-- Mule logger -->
         <AsyncLogger 
-            name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" 
-            level="INFO"/>
+            name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>
 
         <!-- Disabling Service Messages -->
         <!-- 1. Country database not found 
@@ -112,14 +78,13 @@
             https://help.mulesoft.com/s/article/How-to-Suppress-Raise-Error-Stack-Details-in-the-Logs
         -->
         <AsyncLogger name="org.mule.runtime.core.internal.routing.UntilSuccessfulRouter" level="FATAL"/>
+        <AsyncLogger name="org.mule.runtime.core.internal.exception.OnErrorContinueHandler" level="FATAL"/>
         
         <!-- Application logs -->
         <AsyncLogger name="app" level="${sys:logapplication}"/>
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="FILE"/>
-            <AppenderRef ref="CLOUDHUB"/>
-            <AppenderRef ref="Logzio"/>
         </AsyncRoot>
     </Loggers>
 
