@@ -16,11 +16,136 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-    <flow name="account-endpoint">    
+    <flow name="account-endpoint">
+
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
-        <flow-ref doc:name="process contact" name="process-contact"/>
-        <flow-ref doc:name="process account" name="process-account"/>
+
+        <!-- ********************************************
+             Get existing accounts in Salesforce
+             ******************************************** -->
+
+        <flow-ref doc:name="query account" name="query-account"/>
+
+        <set-variable doc:name="save account ids" variableName="listAccountIds" value="#[vars.listIds]"/>
+        <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>
+        <flow-ref doc:name="query contact" name="query-contact"/>
+          
+        <ee:transform doc:name="build Salesforce payload for trust account" >
+            <ee:variables >
+                <ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
+                    output application/java
+                    ---
+                    vars.originalPayload map (item, index) -> {
+                        'Id' : (vars.listAccountIds filter ( $.account == item.account )).id[0],
+                        'Name': item.account,
+                        'IIM_Account_Number__c' : item.account,
+                        'Tier_Level_Code__c': 	item.tierLevelCode as String,
+                        'Tier_Level__c': 		item.tierLevelDescription,
+                        'Freeze_Code__c': 		item.freezeCode,
+                        'Freeze__c': 			item.freezeDescription,
+                        'Type_Code__c': 		item.typeCode,
+                        'Type__c': 				item.typeDescription,
+                        'Category_Code__c': 	item.categoryCode,
+                        'Category__c': 			item.categoryDescription,
+                        'Admin_Officer_ID__c': 	item.adminOfficerId,
+                        'Admin_Officer_Name__c': item.adminOfficerName,
+                        'Opened_Date__c': 		item.openedDate,
+                        'ActiveFlag__c': 		item.activeFlag,
+                        'Closed_Date__c': 		item.closedDate,
+                        'ClosedFlag__c': 		item.closedFlag,
+                        'Customer_Description1__c': item.line1,
+                        'Customer_Description2__c': item.line2,
+                        'Customer_Description3__c': item.line3,
+                        'Customer_Description4__c': item.line4,
+                        'Statement_Date__c': 		item.statementDate,
+                        'Account_Date_Time__c': 	item.date,
+                        'Beneficiary__c': (vars.listIds filter ( $.contactId == item.contactId )).id[0]
+                    }
+                    ]]>
+                </ee:set-variable>
+            </ee:variables >
+        </ee:transform>
+
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+        <!-- ***********************************************
+            Discover the records to create in TrustAccount
+            *********************************************** -->
+        <ee:transform doc:name="get the records to create" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                    output application/java
+                    ---
+                    vars.payloadWithIds filter (isEmpty($.Id) )
+                    ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+        <choice doc:name="Choice" >
+            <when expression='#[ sizeOf(payload) > 0 ]'>
+
+                <logger level="INFO" category="app" message="#['Records to create in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
+
+                <!-- *****************************************
+                     Create AccountPerson Object in Salesforce 
+
+                     Remove the null Id field in the records
+                     ***************************************** -->
+                <ee:transform doc:name="remove null ids" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                            output application/java
+                            ---
+                            payload map (items, index) -> (
+                                items filterObject (value, key) -> value != null
+                            )
+                            ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
+                <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/>
+                <flow-ref doc:name="run job" name="job-bulk"/>        
+            </when>
+
+        </choice>               
+
+
+        <!-- *********************************************
+            Get the records to update in Trust_Account__c
+            ********************************************** -->
+        <ee:transform doc:name="get the records to update Trust_Account__c" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/java
+                ---
+                vars.payloadWithIds filter ( $.Id != null )
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+
+        <choice doc:name="Choice" >
+            <when expression='#[ sizeOf(payload) > 0 ]'>
+
+                <logger level="INFO" category="app" message="#['Records to update in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
+
+                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
+                <set-variable doc:name="set operation" variableName="bulkOperation" value="update"/>
+                <flow-ref doc:name="run job" name="job-bulk"/>
+
+            </when>
+        </choice>
+
         <flow-ref doc:name="service response" name="service-response"/>
+
         <error-handler ref="global-error-handler" />
     </flow>
 </mule>

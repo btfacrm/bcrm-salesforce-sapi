@@ -16,8 +16,10 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-    <flow name="process-contact">    
+    <flow name="contact-endpoint">    
         
+        <flow-ref doc:name="initialize batch" name="initialize-batch"/>
+
         <!-- 
             Create/Update PersonAccount in Salesforce
 
@@ -25,7 +27,7 @@
         -->
 
         <flow-ref doc:name="get contact ids" name="query-contact"/>
-        <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
+        <logger level="DEBUG" category="app" message="#[output application/json --- vars.listIds]" />
 
         <ee:transform doc:name="build payload with Ids" >
 			<ee:variables >
@@ -33,15 +35,20 @@
                 output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
-                    'Id': (vars.listIds filter ( $.contactId == item.contactId )).id[0],                    
-                    'FirstName' : item.firstName,
-                    'LastName': item.lastName,
-                    'SSOT_Name__pc': item.name,
-                    'Mothers_Maiden_Name__pc': item.motherMaidenName,
-                    'SSN__pc': item.ssn,
-                    'SSOT_Contact_ID__pc': item.contactId as String,
-                    'PersonBirthdate': item.dateOfBirth as Date,
-                    'RecordType.Name': 'Beneficiary'
+                    'Id': (vars.listIds filter ( $.contactId == item.contactId )).id[0],
+                    'SSOT_Contact_ID__pc':  item.contactId as String,                  
+                    'FirstName' :           item.firstName,
+                    'LastName':             item.lastName,
+                    'MiddleName':           item.middleInitial,
+                    'SSOT_Name__pc':        item.name,
+                    'PersonBirthdate':      item.dob as Date,
+                    'SSOT_Gender__pc':      item.gender,
+                    'SSN__pc':              item.ssn,
+                    'SSOT_SSNFlag__pc':     item.ssnFlag,
+                    'SSOT_Deathdate__pc':   item.dod as Date,
+                    'SSOT_ActiveFlag__pc':  item.activeFlag,
+                    'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag,
+                    'RecordType.Name':      'Beneficiary'
                 }
                 ]]>
 				</ee:set-variable>	
@@ -62,7 +69,7 @@
             </ee:message>
         </ee:transform>
 
-        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
@@ -87,7 +94,7 @@
                     </ee:message>
                 </ee:transform>
 
-                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+                <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
 
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>
@@ -113,7 +120,7 @@
             </ee:message>
         </ee:transform>
 
-        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
@@ -126,6 +133,8 @@
 
             </when>
         </choice>    
+
+        <flow-ref doc:name="service response" name="service-response"/>
 
         <error-handler ref="global-error-handler" />
     </flow>

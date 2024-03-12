@@ -46,7 +46,10 @@
 		<error-handler ref="global-error-handler" />
     </flow>
     
-        
+    <flow name="post:\contact:application\json:api-config">
+        <flow-ref doc:name="contact" name="contact-endpoint"/>
+  </flow>
+
     <flow name="post:\account:application\json:api-config">
 		  <flow-ref doc:name="account" name="account-endpoint"/>
     </flow>
