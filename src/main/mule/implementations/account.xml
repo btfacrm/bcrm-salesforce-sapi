@@ -16,7 +16,7 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-    <flow name="account-endpoint">
+    <flow name="endpoint-account">
 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 

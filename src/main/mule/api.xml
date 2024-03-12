@@ -47,15 +47,15 @@
     </flow>
     
     <flow name="post:\contact:application\json:api-config">
-        <flow-ref doc:name="contact" name="contact-endpoint"/>
+        <flow-ref doc:name="contact" name="endpoint-contact"/>
   </flow>
 
     <flow name="post:\account:application\json:api-config">
-		  <flow-ref doc:name="account" name="account-endpoint"/>
+		  <flow-ref doc:name="account" name="endpoint-account"/>
     </flow>
 
-    <flow name="post:\disbursment:application\json:api-config">
-		  <flow-ref doc:name="disbursment" name="endpoint-disbursment"/>
+    <flow name="post:\disbursement:application\json:api-config">
+		  <flow-ref doc:name="disbursment" name="endpoint-disbursement"/>
     </flow>
     
     <flow name="post:\balance:application\json:api-config">
