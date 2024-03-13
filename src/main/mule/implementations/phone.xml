@@ -23,127 +23,67 @@
              UPDATE ACCOUNT RECORDS IN SALESFORCE
              ******************************************** -->
 
-        <flow-ref doc:name="query phone" name="query-phone"/>
+        <flow-ref doc:name="query phone" name="query-contact"/>
 
-        <choice doc:name="Choice" >
-            <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
-
-                <!-- Getting from the database the contactId with the values for all phones:
-                    [{
-                        "Id": "001OC000006w9IuYAI",
-                        "ci": 1,
-                        "PersonOtherPhone": null,
-                        "PersonHomePhone": "111",
-                        "PersonMobilePhone": "+1 (888)9727-284",
-                        "Fax": "+1 (888)9727-284"
-                    }]
-                -->
-                <ee:transform doc:name="merging input payload with records from salesforce" >
-                    <ee:message >
-                        <ee:set-payload ><![CDATA[%dw 2.0
-                        output application/json
-                        ---
-                        vars.originalPayload map (original) -> {
-                            contactId: original.contactId,
-                            phoneType: original."type",
-                            phoneValue: original.number,
-                            (vars.listIds filter ($.*ci contains original.contactId)
-                                map (idElement) -> {
-                                    Id: idElement.Id,
-                                    PersonOtherPhone : idElement.PersonOtherPhone,
-                                    PersonHomePhone: idElement.Phone,
-                                    PersonMobilePhone: idElement.PersonMobilePhone,
-                                    Fax: idElement.Fax
-                            })
-                        }
-                        ]]>
-                        </ee:set-payload>
-                    </ee:message>
-                </ee:transform>
-
-                <!-- The previous script will create the next json:
-                    
-                    {
-                        "contactId": 1,
-                        "phoneType": "Home",
-                        "phoneValue": "911",
-                        "Id": "001OC000006w9IuYAI",
-                        "PersonOtherPhone": null,
-                        "PersonHomePhone": "111",
-                        "PersonMobilePhone": "+1 (888)9727-284",
-                        "Fax": "+1 (888)9727-284"
-                    }
-
-                    The next script will create a new json based on the phoneType, and will update only the phone
-                    that matches the phoneType.
-
-                    {
-                        "Id": "001OC000006w9IxYAI",
-                        "PersonOtherPhone": "944",
-                        "PersonHomePhone": "44",
-                        "PersonMobilePhone": "+1 (996)0564-266",
-                        "Fax": "+1 (996)0564-266"
-                    }
-
-                    The reason for this solution is because bulk api don't work correctly if We have records with
-                    different key elements, next json provokes incorrectly in bulk api to update the 3 different records the
-                    PersonMobilePhone although for records 2 and 3 it has fax and phone 
-                    {
-                        "Id": "001OC000006w9IuYAI",
-                        "PersonMobilePhone": "+1 (888)9727-284",
-                    },
-                    {
-                        "Id": "001OC000006w9IvYAI",
-                        "Fax": "+1 (649)9554-299"
-                    },
-                    {
-                        "Id": "001OC000006w9IwYAI",
-                        "PersonHomePhone": "333-5535-3444",
-                    },
-                -->
-                <ee:transform doc:name="build Salesforce payload to update phones" >
-                    <ee:message >
-                        <ee:set-payload ><![CDATA[%dw 2.0
-                        output application/json
-                        ---
-                        payload map (phone) -> {
-                            Id: phone.Id,
-                            PersonOtherPhone:
-                                if (phone.phoneType == "Business")
-                                    phone.phoneValue 
-                                else phone.PersonOtherPhone,
-                            PersonHomePhone: 
-                                if (phone.phoneType == "Home")
-                                    phone.phoneValue 
-                                else phone.PersonHomePhone,
-                            PersonMobilePhone: 
-                                if (phone.phoneType == "Cellular")
-                                    phone.phoneValue 
-                                else phone.PersonMobilePhone,    
-                            Fax: 
-                                if (phone.phoneType == "Fax")
-                                    phone.phoneValue 
-                                else phone.Fax,
-                        }
-                        ]]>
-                        </ee:set-payload>
-                    </ee:message>
-                </ee:transform>
+        <ee:transform doc:name="build Salesforce payload to update phones" >
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/java
+                ---
+                vars.originalPayload map (item, index) -> {
+                    'Id' : (vars.listIds filter ( $.contactId == item.contactId )).id[0],
                 
-                <!-- <logger level="DEBUG" category="app" message="#[payload]" /> -->
+                    // Celluar phone
+                    ('PersonMobilePhone': item.number) if (item.'type' == "Cellular"),
+                    ('SSOT_MobilePhone_ID__pc': item.phoneId) if (item.'type' == "Cellular"),
+                    ('SSOT_MobilePhone_Primary__pc': item.primary) if (item.'type' == "Cellular"),
+                    ('SSOT_MobilePhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Cellular"),
+                    ('PersonMobilePhone': '') if (item.'type' != "Cellular"),
+                    ('SSOT_MobilePhone_ID__pc': '') if (item.'type' != "Cellular"),
+                    ('SSOT_MobilePhone_Primary__pc': '') if (item.'type' != "Cellular"),
+                    ('SSOT_MobilePhone_Date_Time__pc': '') if (item.'type' != "Cellular"),
 
-                <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
-                <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+                    // Home phone
+                    ('PersonHomePhone': item.number) if (item.'type' == "Home"),
+                    ('SSOT_HomePhone_ID__pc': item.phoneId) if (item.'type' == "Home"),
+                    ('SSOT_HomePhone_Primary__pc': item.primary) if (item.'type' == "Home"),
+                    ('SSOT_HomePhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Home"),
+                    ('PersonHomePhone': '') if (item.'type' != "Home"),
+                    ('SSOT_HomePhone_ID__pc': '') if (item.'type' != "Home"),
+                    ('SSOT_HomePhone_Primary__pc': '') if (item.'type' != "Home"),
+                    ('SSOT_HomePhone_Date_Time__pc': '') if (item.'type' != "Home"),
 
-                <flow-ref doc:name="run job" name="job-bulk"/>                
-            </when>
-            <otherwise>
-                <logger doc:name="bulk result" level="INFO" category="app" 
-                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', IIM accounts in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
-                <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
-                <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
-            </otherwise>
-        </choice>
+                    // Business phone
+                    ('PersonOtherPhone': item.number) if (item.'type' == "Business"),
+                    ('SSOT_BusinessPhone_ID__pc': item.phoneId) if (item.'type' == "Business"),
+                    ('SSOT_BusinessPhone_Primary__pc': item.primary) if (item.'type' == "Business"),
+                    ('SSOT_BusinessPhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Business"),
+                    ('PersonOtherPhone': '') if (item.'type' != "Business"),
+                    ('SSOT_BusinessPhone_ID__pc': '') if (item.'type' != "Business"),
+                    ('SSOT_BusinessPhone_Primary__pc': '') if (item.'type' != "Business"),
+                    ('SSOT_BusinessPhone_Date_Time__pc': '') if (item.'type' != "Business"),
+
+                    // Fax phone
+                    ('Fax': item.number) if (item.'type' == "Fax"),
+                    ('SSOT_FaxPhone_ID__pc': item.phoneId) if (item.'type' == "Fax"),
+                    ('SSOT_FaxPhone_Primary__pc': item.primary) if (item.'type' == "Fax"),
+                    ('SSOT_FaxPhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Fax"),
+                    ('Fax': '') if (item.'type' != "Fax"),
+                    ('SSOT_FaxPhone_ID__pc': '') if (item.'type' != "Fax"),
+                    ('SSOT_FaxPhone_Primary__pc': '') if (item.'type' != "Fax"),
+                    ('SSOT_FaxPhone_Date_Time__pc': '') if (item.'type' != "Fax"),                    
+                }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        
+        <logger level="DEBUG" category="app" message="#[payload]" />
+
+        <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
+        <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+
+        <flow-ref doc:name="run job" name="job-bulk"/>
 
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		

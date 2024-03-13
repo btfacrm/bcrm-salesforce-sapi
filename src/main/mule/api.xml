@@ -48,7 +48,7 @@
     
     <flow name="post:\contact:application\json:api-config">
         <flow-ref doc:name="contact" name="endpoint-contact"/>
-  </flow>
+    </flow>
 
     <flow name="post:\account:application\json:api-config">
 		  <flow-ref doc:name="account" name="endpoint-account"/>
@@ -61,6 +61,10 @@
     <flow name="post:\balance:application\json:api-config">
 		  <flow-ref doc:name="balance" name="endpoint-balance"/>
     </flow>
+
+    <flow name="post:\agencyregion:application\json:api-config">
+        <flow-ref doc:name="agencyregion" name="endpoint-agencyregion"/>
+  </flow>
 
     <flow name="post:\phone:application\json:api-config">
 		  <flow-ref doc:name="phone" name="endpoint-phone"/>
