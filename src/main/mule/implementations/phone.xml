@@ -78,7 +78,7 @@
             </ee:message>
         </ee:transform>
         
-        <logger level="DEBUG" category="app" message="#[payload]" />
+        <!--<logger level="DEBUG" category="app" message="#[payload]" />-->
 
         <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
         <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />

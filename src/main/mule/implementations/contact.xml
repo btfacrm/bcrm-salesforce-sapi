@@ -20,14 +20,8 @@
         
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- 
-            Create/Update PersonAccount in Salesforce
-
-            Find the contactId in PersonAccount and create a new input payload
-        -->
-
         <flow-ref doc:name="get contact ids" name="query-contact"/>
-        <logger level="DEBUG" category="app" message="#[output application/json --- vars.listIds]" />
+        <!--<logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" />-->
 
         <ee:transform doc:name="build payload with Ids" >
 			<ee:variables >
@@ -69,7 +63,7 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+        <!--<logger level="DEBUG" category="app" message="#[output application/json - payload]" />-->
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
@@ -94,7 +88,7 @@
                     </ee:message>
                 </ee:transform>
 
-                <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
+                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>

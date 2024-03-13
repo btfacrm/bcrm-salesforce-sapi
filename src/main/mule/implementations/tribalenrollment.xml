@@ -16,7 +16,7 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-    <flow name="endpoint-email">     
+    <flow name="endpoint-tribalenrollment">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
         <!-- ********************************************
@@ -32,11 +32,11 @@
                         <ee:set-payload ><![CDATA[%dw 2.0
                         output application/java
                         ---
-                        vars.originalPayload map (email) -> {
-                            'Id':                           (vars.listIds filter ( $.contactId == email.contactId )).id[0],
-                            'PersonEmail':                  email.email,
-                            'SSOT_PersonEmailID__pc':       email.emailId,
-                            'SSOT_PersonEmail_Date_Time__pc': email.date as DateTime
+                        vars.originalPayload map (item) -> {
+                            'Id':                               (vars.listIds filter ( $.contactId == item.contactId )).id[0],
+                            'Tribe_Enrollment_Code__pc':        item.code,
+                            'Tribe_Enrollment_Description__pc': item.description,
+                            'Tribe_Enrollment_Date_Time__pc':   item.date as DateTime
                         }
                         ]]>
                         </ee:set-payload>
@@ -46,7 +46,7 @@
                 <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
                 <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
         
-                <flow-ref doc:name="run job" name="job-bulk"/>
+                <flow-ref doc:name="run job" name="job-sequential"/>
             </when>
             <otherwise>
                 <logger doc:name="bulk result" level="INFO" category="app" 

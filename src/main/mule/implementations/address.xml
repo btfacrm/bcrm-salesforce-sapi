@@ -19,66 +19,51 @@
     <flow name="address-endpoint">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- 
-            Find the contactId in PersonAccount
-        -->
-
         <flow-ref doc:name="query contact" name="query-contact"/>
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 
-        <choice doc:name="Choice" >
-            <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
+        <ee:transform doc:name="build Salesforce payload for Account">
+            <ee:message >
+                <ee:set-payload ><![CDATA[%dw 2.0
+                output application/java
+                import * from dw::core::Strings
 
-                <ee:transform doc:name="build Salesforce payload for Account">
-                    <ee:message >
-                        <ee:set-payload ><![CDATA[%dw 2.0
-                        output application/java
-                        import * from dw::core::Strings
+                fun addAddress(s1,s2) =
+                    if (isEmpty(s2)) s1
+                    else s1 ++ ". " ++ s2
 
-                        fun addAddress(s1,s2) =
-                            if (isEmpty(s2)) s1
-                            else s1 ++ ". " ++ s2
+                fun street(a1, a2, a3) = 
+                    if ( isEmpty(a1) )
+                        addAddress(a2, a3)
+                    else
+                        if (isEmpty(addAddress(a2, a3)))
+                            a1
+                        else
+                            a1 ++ ". " ++ addAddress(a2, a3)
+                ---
+                vars.originalPayload filter ( $.primary == true )
+                    map (address) -> {
+                        'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
+                        PersonMailingStreet: street(address.address1,
+                                                address.address2,
+                                                address.address3) withMaxSize  150,
+                        'PersonMailingCity': address.city,
+                        'PersonMailingStateCode': address.state,
+                        'PersonMailingPostalCode': address.zipCode
+                    }
+                ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
 
-                        fun street(a1, a2, a3) = 
-                            if ( isEmpty(a1) )
-                                addAddress(a2, a3)
-                            else
-                                if (isEmpty(addAddress(a2, a3)))
-                                    a1
-                                else
-                                    a1 ++ ". " ++ addAddress(a2, a3)
-                        ---
-                        vars.originalPayload map (address) -> {
-                            'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
-                            PersonMailingStreet: street(address.address1,
-                                                    address.address2,
-                                                    address.address3) withMaxSize  150,
-                            'PersonMailingCity': address.city,
-                            'PersonMailingStateCode': address.state,
-                            'PersonMailingPostalCode': address.zipCode
-                        }
-                        ]]>
-                        </ee:set-payload>
-                    </ee:message>
-                </ee:transform>
+        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" /> 
 
-                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+        <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
+        <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
 
-                <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
-                <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
-        
-                <flow-ref doc:name="run job" name="job-bulk"/>
+        <flow-ref doc:name="run job" name="job-bulk"/>
 
-                <flow-ref doc:name="add records in address_c" name="address-list"/>
-
-            </when>
-            <otherwise>
-                <logger doc:name="bulk result" level="INFO" category="app" 
-                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', contactIds in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
-                <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
-                <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
-            </otherwise>
-        </choice>
+        <!--<flow-ref doc:name="add records in address_c" name="address-list"/>-->
 
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		
