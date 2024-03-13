@@ -20,10 +20,6 @@
 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- ********************************************
-             CREATE TRUST ACCOUNT RECORDS IN SALESFORCE
-             ******************************************** -->
-
         <flow-ref doc:name="get account ids" name="query-account"/>
         
         <choice doc:name="Choice" >

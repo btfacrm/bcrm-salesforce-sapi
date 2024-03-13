@@ -21,7 +21,7 @@
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
         <flow-ref doc:name="get contact ids" name="query-contact"/>
-        <!--<logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" />-->
+        <logger level="DEBUG" category="app" message="#[output application/json --- vars.listIds]" />
 
         <ee:transform doc:name="build payload with Ids" >
 			<ee:variables >
@@ -30,7 +30,8 @@
                 ---
                 vars.originalPayload map (item, index) -> {
                     'Id': (vars.listIds filter ( $.contactId == item.contactId )).id[0],
-                    'SSOT_Contact_ID__pc':  item.contactId as String,                  
+                    'RecordType.Name':      'Beneficiary',
+                    'SSOT_Contact_ID__c':   item.contactId,         
                     'FirstName' :           item.firstName,
                     'LastName':             item.lastName,
                     'MiddleName':           item.middleInitial,
@@ -41,17 +42,18 @@
                     'SSOT_SSNFlag__pc':     item.ssnFlag,
                     'SSOT_Deathdate__pc':   item.dod as Date,
                     'SSOT_ActiveFlag__pc':  item.activeFlag,
-                    'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag,
-                    'RecordType.Name':      'Beneficiary'
+                    'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag
                 }
                 ]]>
 				</ee:set-variable>	
 			</ee:variables>
         </ee:transform>			
         
-        <!-- ***********************************************
-             Discover the records to create in PersonAccount
-             *********************************************** -->
+        <!-- 
+        ***********************************************
+        Discover the records to create in PersonAccount
+        ***********************************************
+        -->
         <ee:transform doc:name="get the records to create" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
@@ -63,7 +65,7 @@
             </ee:message>
         </ee:transform>
 
-        <!--<logger level="DEBUG" category="app" message="#[output application/json - payload]" />-->
+        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
 
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
@@ -88,7 +90,7 @@
                     </ee:message>
                 </ee:transform>
 
-                <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+                <logger level="DEBUG" category="app" message="#[output application/json --- payload]" />
 
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>

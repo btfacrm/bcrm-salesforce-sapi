@@ -56,14 +56,14 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="DEBUG" category="app" message="#[output application/json --- payload]" /> 
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
         <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
 
         <flow-ref doc:name="run job" name="job-bulk"/>
 
-        <!--<flow-ref doc:name="add records in address_c" name="address-list"/>-->
+        <flow-ref doc:name="add records in address_c" name="address-list"/>
 
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		

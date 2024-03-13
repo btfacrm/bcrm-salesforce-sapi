@@ -1,3 +1,3 @@
-SELECT Id, SSOT_Contact_ID__pc 
+SELECT Id, SSOT_Contact_ID__c 
 FROM Account 
-WHERE SSOT_Contact_ID__pc IN (:queryFilter)
+WHERE SSOT_Contact_ID__c IN (:queryFilter)

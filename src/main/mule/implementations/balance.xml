@@ -19,10 +19,6 @@
     <flow name="endpoint-balance">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- ********************************************
-             CREATE TRUST ACCOUNT RECORDS IN SALESFORCE
-             ******************************************** -->
-
         <flow-ref doc:name="get account ids" name="query-account"/>
         
         <choice doc:name="Choice" >
@@ -36,7 +32,7 @@
                             'Id' : (vars.listIds filter ( $.account == item.account )).id[0],
                             'IIM_Account_Number__c' : item.account,
                             'Balance__c': item.balance,
-                            'Balance_Date_Time__c': item.update
+                            'Balance_Date_Time__c': item.date
                         }
                         ]]>
                         </ee:set-payload>

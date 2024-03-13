@@ -19,15 +19,13 @@
     <flow name="endpoint-disbursement"> 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <flow-ref doc:name="Get Account Ids" name="query-account"/>
-
         <ee:transform doc:name="build Salesforce payload for transactions" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
-                    'Trust_Account__c' : (vars.listIds filter ( $.account == item.account )).id[0],
+                    'Trust_Account__r.IIM_Account_Number__c': item.account,
                     'Transaction_Number__c':    item.transaction,
                     'Name':                     item.transaction,
                     'Code__c':                  item.code,
@@ -50,10 +48,9 @@
         <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account_Disbursement__c" />
         <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
 
-        <remove-variable doc:name="remove variable" variableName="listIds"/>
-
         <flow-ref doc:name="run job" name="job-bulk"/>
         <flow-ref doc:name="service response" name="service-response"/>
+
         <error-handler ref="global-error-handler" />		
     </flow>
 </mule>

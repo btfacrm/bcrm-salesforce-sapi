@@ -46,7 +46,7 @@
                 <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
                 <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
         
-                <flow-ref doc:name="run job" name="job-sequential"/>
+                <flow-ref doc:name="run job" name="job-bulk"/>
             </when>
             <otherwise>
                 <logger doc:name="bulk result" level="INFO" category="app" 
