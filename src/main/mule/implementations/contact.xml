@@ -32,17 +32,18 @@
                     'Id': (vars.listIds filter ( $.contactId == item.contactId )).id[0],
                     'RecordType.Name':      'Beneficiary',
                     'SSOT_Contact_ID__c':   item.contactId,         
-                    'FirstName' :           item.firstName,
-                    'LastName':             item.lastName,
-                    'MiddleName':           item.middleInitial,
+                    ('FirstName' :          item.firstName) if (!isEmpty(item.firstName)),
+                    ('LastName':            item.lastName) if (!isEmpty(item.lastName)),
+                    ('MiddleName':          item.middleInitial) if (!isEmpty(item.middleInitial)),
                     'SSOT_Name__pc':        item.name,
-                    'PersonBirthdate':      item.dob as Date,
-                    'SSOT_Gender__pc':      item.gender,
-                    'SSN__pc':              item.ssn,
+                    ('PersonBirthdate':     item.dob as Date) if (!isEmpty(item.dob)),
+                    ('SSOT_Gender__pc':     item.gender) if (!isEmpty(item.gender)),
+                    ('SSN__pc':             item.ssn) if (!isEmpty(item.ssn)),
                     'SSOT_SSNFlag__pc':     item.ssnFlag,
-                    'SSOT_Deathdate__pc':   item.dod as Date,
+                    ('SSOT_Deathdate__pc':  item.dod as Date) if (!isEmpty(item.dod)),
                     'SSOT_ActiveFlag__pc':  item.activeFlag,
-                    'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag
+                    'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag,
+                    'Contact_Date_Time__pc':item.date as DateTime
                 }
                 ]]>
 				</ee:set-variable>	

@@ -36,7 +36,7 @@
                             'Id':                           (vars.listIds filter ( $.contactId == email.contactId )).id[0],
                             'PersonEmail':                  email.email,
                             'SSOT_PersonEmailID__pc':       email.emailId,
-                            'SSOT_PersonEmail_Date_Time__pc': email.date as DateTime
+                            'SSOT_PersonEmail_Date_Time__pc':email.date as DateTime
                         }
                         ]]>
                         </ee:set-payload>
