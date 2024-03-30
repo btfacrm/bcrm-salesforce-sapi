@@ -35,6 +35,9 @@ The next properties must be provided to run the service:
 | salesforce.tokenendpoint     | The URL to generate the authentication token |
 | salesforce.audienceurl       | test.salesforce.com for a sandbox environment and login.salesforce.com for production. |
 | api.id                       | API Manager instance id |
+| jks.path                     | Path to the keystore for https |
+| jks.keypassword              | Password to open the keystore for https |
+| jks.alias                    | Name of the certificate in the keystore for https |
 | logapplication               | Logging level for application messages |
 | logconnectors                | Logging level for connectors |
 | logroot                      | Logging level for root |
