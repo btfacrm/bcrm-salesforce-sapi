@@ -28,6 +28,7 @@
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response> 
         </http:listener>
+        <logger doc:name="payload" level="INFO" message="#[payload]"/>
 		<apikit:router config-ref="api-config" />
 		<error-handler ref="global-error-handler"/>
     </flow>
