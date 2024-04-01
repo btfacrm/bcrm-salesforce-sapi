@@ -53,6 +53,7 @@
                         ('Customer_Description2__c': item.line2) if (!isEmpty(item.line2)),
                         ('Customer_Description3__c': item.line3) if (!isEmpty(item.line3)),
                         ('Customer_Description4__c': item.line4) if (!isEmpty(item.line4)),
+                        ('Customer_Description5__c': item.line5) if (!isEmpty(item.line5)),
                         ('Statement_Date__c': 		 item.statementDate) if (!isEmpty(item.statementDate)),
                         'Account_Date_Time__c': 	 item.date
                     }

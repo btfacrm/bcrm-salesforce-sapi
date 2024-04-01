@@ -30,7 +30,7 @@
                     vars.originalPayload map (address) -> {
                         'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
                         'Beneficiary__r.SSOT_Contact_ID__c': address.contactId,
-                        'Name': address."type",
+                        'Name': address.addressId ++ "-" ++ address.contactId,
                         'SSOT_ID__c': address.addressId,
                         'Address_1__c': address.address1,
                         'Address_2__c': address.address2,
