@@ -1,20 +1,19 @@
 name: Build
- 
+
+# Events that trigger workflows - https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 on:
   push:
     branches: [ "main" ]
   pull_request: 
 
 jobs: 
-  Mulesoft:
+  Build:
     uses: btfacrm/common-devops/.github/workflows/mule-build.yml@main
-    with:
-      keyvault-key: jpworks-keyvault
-    secrets:
-      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
-    
+    secrets: inherit
+
     # Needed by the Unit Test Action
     permissions:
       contents: write
       issues: write
       checks: write
+      pull-requests: write

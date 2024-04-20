@@ -1,11 +1,14 @@
 # BCRM Salesforce System API
 ![Powered by](https://img.shields.io/badge/Powered%20by-Mulesoft-535597.svg)
-  ![Unit test](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-ut.svg)
-  ![Code coverage](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-cc.svg)
+  ![Unit test](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-ut.svg)
+  ![Code coverage](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-cc.svg)
   ![Build](https://github.com/btfacrm/bcrm-salesforce-sapi/actions/workflows/build.yml/badge.svg)
-  ![Build job](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-wf.svg)
-  ![Release](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-re.svg)
-  ![dev version](https://gist.githubusercontent.com/jpontdia/2f22ca2ddf1ba473d6e2cff61cc2fba9/raw/bcrm-salesforce-sapi-dev.svg)
+  ![Build job](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-wf.svg)
+  ![Release](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-re.svg)
+  ![dev version](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-dev.svg)
+  ![dev bat test](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-dev-test.svg)
+  ![prd version](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-prd.svg)
+  ![prd bat test](https://raw.githubusercontent.com/btfacrm/badges/main/bcrm-salesforce-sapi/bcrm-salesforce-sapi-prd-test.svg)
 <br>
 
 API Specification for sending the new and update records of beneficiaries from SSoT to BCRM. The unique identifiers to consider in the service are: account, contactId and transaction.

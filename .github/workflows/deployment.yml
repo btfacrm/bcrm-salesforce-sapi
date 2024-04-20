@@ -1,22 +1,22 @@
 name: Deployment
  
+# Events that trigger workflows - https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 on:
   issues:
+    #https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#issues
     types: [opened]
 
 jobs: 
   Deployment:
     uses: btfacrm/common-devops/.github/workflows/mule-deployment.yml@main
+    secrets: inherit
     if: |
-      contains(toJson(github.event.issue.labels), 'dev') ||
-      contains(toJson(github.event.issue.labels), 'prd')
-    with:
-      keyvault-key: jpworks-keyvault
-    secrets:
-      azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+      github.actor == 'btfa-automation-bot[bot]' &&
+      contains(toJson(github.event.issue.labels), 'deployment')
 
     # Needed by the Unit Test Action
     permissions:
       contents: write
       issues: write
       checks: write
+      pull-requests: write
