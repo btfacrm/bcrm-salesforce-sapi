@@ -55,6 +55,10 @@
 		  <flow-ref doc:name="account" name="endpoint-account"/>
     </flow>
 
+    <flow name="post:\accountudf:application\json:api-config">
+        <flow-ref doc:name="accountudf" name="endpoint-accountudf"/>
+  </flow>
+
     <flow name="post:\disbursement:application\json:api-config">
 		  <flow-ref doc:name="disbursment" name="endpoint-disbursement"/>
     </flow>

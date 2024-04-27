@@ -26,6 +26,7 @@
         <ee:transform doc:name="build payload with Ids" >
 			<ee:variables >
 				<ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
+                import last from dw::core::Strings
                 output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
@@ -33,17 +34,18 @@
                     'RecordType.Name':      'Beneficiary',
                     'SSOT_Contact_ID__c':   item.contactId,         
                     ('FirstName' :          item.firstName) if (!isEmpty(item.firstName)),
-                    ('LastName':            item.lastName) if (!isEmpty(item.lastName)),
                     ('MiddleName':          item.middleInitial) if (!isEmpty(item.middleInitial)),
-                    'SSOT_Name__pc':        item.name,
+                    'SSOT_Name__pc':        item.name,  
                     ('PersonBirthdate':     item.dob as Date) if (!isEmpty(item.dob)),
                     ('SSOT_Gender__pc':     item.gender) if (!isEmpty(item.gender)),
                     ('SSN__pc':             item.ssn) if (!isEmpty(item.ssn)),
-                    'SSOT_SSNFlag__pc':     item.ssnFlag,
+                    ('SSNLastFourDigits__pc':item.ssn last 4) if (!isEmpty(item.ssn)),
+                    ('SSOT_SSNFlag__pc':    item.ssnFlag) if (!isEmpty(item.ssnFlag)),
                     ('SSOT_Deathdate__pc':  item.dod as Date) if (!isEmpty(item.dod)),
                     'SSOT_ActiveFlag__pc':  item.activeFlag,
                     'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag,
-                    'Contact_Date_Time__pc':item.date as DateTime
+                    'Contact_Date_Time__pc':item.date as DateTime,
+                    'LastName': if (!isEmpty(item.lastName)) item.lastName else item.name
                 }
                 ]]>
 				</ee:set-variable>	

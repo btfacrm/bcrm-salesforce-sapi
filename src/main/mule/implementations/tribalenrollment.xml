@@ -35,11 +35,11 @@
                         vars.originalPayload map (item) -> {
                             'Id':                               (vars.listIds filter ( $.contactId == item.contactId )).id[0],
                             'Tribe_Enrollment_Code__pc':        item.code,
+                            'Tribe_Code__c':                    item.code,
                             'Tribe_Enrollment_Description__pc': item.description,
                             'Tribe_Enrollment_Date_Time__pc':   item.date as DateTime
                         }
                         ]]>
-                        <!-- 'Tribe__r.Tribe_Code__c':           item.code  -->
                         </ee:set-payload>
                     </ee:message>
                 </ee:transform>
