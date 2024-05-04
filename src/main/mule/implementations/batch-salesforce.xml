@@ -35,9 +35,12 @@
                 ]]>
                 </ee:set-payload>
             </ee:message>
-        </ee:transform>		
+        </ee:transform>
 
-		<salesforce:create-job-bulk-api-v2 doc:name="job" 
+		<!-- <logger level="DEBUG" category="app" message="#[payload]" /> -->
+
+		<salesforce:create-job-bulk-api-v2 
+			doc:name="job" 
 			config-ref="GlobalSalesforceConfig" 
 			objectType="#[vars.salesforceObject]" 
 			operation="#[vars.bulkOperation]" 

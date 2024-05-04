@@ -32,26 +32,28 @@
                 vars.originalPayload map (item, index) -> {
                     'Id': (vars.listIds filter ( $.contactId == item.contactId )).id[0],
                     'RecordType.Name':      'Beneficiary',
-                    'SSOT_Contact_ID__c':   item.contactId,         
-                    ('FirstName' :          item.firstName) if (!isEmpty(item.firstName)),
-                    ('MiddleName':          item.middleInitial) if (!isEmpty(item.middleInitial)),
-                    'SSOT_Name__pc':        item.name,  
-                    ('PersonBirthdate':     item.dob as Date) if (!isEmpty(item.dob)),
-                    ('SSOT_Gender__pc':     item.gender) if (!isEmpty(item.gender)),
-                    ('SSN__pc':             item.ssn) if (!isEmpty(item.ssn)),
-                    ('SSNLastFourDigits__pc':item.ssn last 4) if (!isEmpty(item.ssn)),
-                    ('SSOT_SSNFlag__pc':    item.ssnFlag) if (!isEmpty(item.ssnFlag)),
-                    ('SSOT_Deathdate__pc':  item.dod as Date) if (!isEmpty(item.dod)),
+                    'SSOT_Contact_ID__c':   item.contactId,
+                    'FirstName':            if (!isEmpty(item.firstName)) item.firstName else "#N/A",
+                    'LastName':             if (!isEmpty(item.lastName)) item.lastName else item.name,
+                    'MiddleName':           if (!isEmpty(item.middleInitial)) item.middleInitial else "#N/A",
+                    'SSOT_Name__pc':        item.name,
+                    'PersonBirthdate':      if (!isEmpty(item.dob)) item.dob as Date else "#N/A",
+                    'SSOT_Gender__pc':      if (!isEmpty(item.gender)) item.gender else "#N/A",
+                    'SSN__pc':              if (!isEmpty(item.ssn)) item.ssn else "#N/A",
+                    'SSNLastFourDigits__pc':if (!isEmpty(item.ssn)) item.ssn last 4 else "#N/A",
+                    'SSOT_SSNFlag__pc':     if (!isEmpty(item.ssnFlag)) item.ssnFlag else false,
+                    'SSOT_Deathdate__pc':   if (!isEmpty(item.dod)) item.dod as Date else "#N/A",
                     'SSOT_ActiveFlag__pc':  item.activeFlag,
                     'SSOT_Disbursement_Eligibility_Flag__pc': item.disbursementFlag,
-                    'Contact_Date_Time__pc':item.date as DateTime,
-                    'LastName': if (!isEmpty(item.lastName)) item.lastName else item.name
+                    'Contact_Date_Time__pc':item.date as DateTime
                 }
                 ]]>
 				</ee:set-variable>	
 			</ee:variables>
         </ee:transform>			
         
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.payloadWithIds]" /> -->
+
         <!-- 
         ***********************************************
         Discover the records to create in PersonAccount
