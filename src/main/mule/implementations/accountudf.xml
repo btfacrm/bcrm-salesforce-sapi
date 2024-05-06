@@ -30,15 +30,15 @@
                         ---
                         vars.originalPayload map (item, index) -> {
                             'Id' : (vars.listIds filter ( $.account == item.account )).id[0],
-                            ('Distribution_Plan_Expire_Date__c':    item.distributionExpiration) if (!isEmpty(item.distributionExpiration)),
-                            ('Temporary_Court_Order_Expire_Date__c': item.temporaryCourtOrderExp) if (!isEmpty(item.temporaryCourtOrderExp)),
-                            'Birth_Certificate_on_File__c':         false,
-                            ('Age_of_Majority__c':                  item.ageMajority) if (!isEmpty(item.ageMajority)),
-                            ('Customer_Description5__c':            item.line5) if (!isEmpty(item.line5)),
-                            ('Pending_Social_Services_Assessment__c': item.pendingSocServ) if (!isEmpty(item.pendingSocServ)),
-                            ('Managed_Outside_Home_Agency_Code__c': item.managedAgencyCode) if (!isEmpty(item.managedAgencyCode)),
-                            ('Managed_Outside_Home_Agency_Name__c': item.managedAgencyName) if (!isEmpty(item.managedAgencyName)),
-                            ('Non_Responsive_Guardian__c':          item.nonResponsiveGuardian) if (!isEmpty(item.nonResponsiveGuardian)),
+                            'Distribution_Plan_Expire_Date__c':     if (!isEmpty(item.distributionExpiration)) item.distributionExpiration else "#N/A",
+                            'Temporary_Court_Order_Expire_Date__c': if (!isEmpty(item.temporaryCourtOrderExp)) item.temporaryCourtOrderExp else "#N/A",
+                            'Birth_Certificate_on_File__c':         if (!isEmpty(item.birthCertificate)) item.birthCertificate else false,
+                            'Age_of_Majority__c':                   if (!isEmpty(item.ageMajority)) item.ageMajority else "#N/A",
+                            'Customer_Description5__c':             if (!isEmpty(item.line5)) item.line5 else "#N/A",
+                            'Pending_Social_Services_Assessment__c':if (!isEmpty(item.pendingSocServ)) item.pendingSocServ else false,
+                            'Managed_Outside_Home_Agency_Code__c':  if (!isEmpty(item.managedAgencyCode)) item.managedAgencyCode else "#N/A",
+                            'Managed_Outside_Home_Agency_Name__c':  if (!isEmpty(item.managedAgencyName)) item.managedAgencyName else "#N/A",
+                            'Non_Responsive_Guardian__c':           if (!isEmpty(item.nonResponsiveGuardian)) item.nonResponsiveGuardian else false,
                             'Account_Master_Date_Time__c':          item.date
                         }
                         ]]>

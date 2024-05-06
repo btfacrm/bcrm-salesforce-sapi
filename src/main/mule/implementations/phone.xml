@@ -34,44 +34,28 @@
                     'Id' : (vars.listIds filter ( $.contactId == item.contactId )).id[0],
                 
                     // Celluar phone
-                    ('PersonMobilePhone': item.number) if (item.'type' == "Cellular"),
-                    ('SSOT_MobilePhone_ID__pc': item.phoneId) if (item.'type' == "Cellular"),
-                    ('SSOT_MobilePhone_Primary__pc': item.primary) if (item.'type' == "Cellular"),
-                    ('SSOT_MobilePhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Cellular"),
-                    ('PersonMobilePhone': '') if (item.'type' != "Cellular"),
-                    ('SSOT_MobilePhone_ID__pc': '') if (item.'type' != "Cellular"),
-                    ('SSOT_MobilePhone_Primary__pc': '') if (item.'type' != "Cellular"),
-                    ('SSOT_MobilePhone_Date_Time__pc': '') if (item.'type' != "Cellular"),
-
+                    'PersonMobilePhone':           if (item.'type' == "Cellular") item.number else '',
+                    'SSOT_MobilePhone_ID__pc':     if (item.'type' == "Cellular") item.phoneId else '',
+                    'SSOT_MobilePhone_Primary__pc':if (item.'type' == "Cellular") item.primary else "false",
+                    'SSOT_MobilePhone_Date_Time__pc': if (item.'type' == "Cellular") item.date as DateTime else '',
+                    
                     // Home phone
-                    ('PersonHomePhone': item.number) if (item.'type' == "Home"),
-                    ('SSOT_HomePhone_ID__pc': item.phoneId) if (item.'type' == "Home"),
-                    ('SSOT_HomePhone_Primary__pc': item.primary) if (item.'type' == "Home"),
-                    ('SSOT_HomePhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Home"),
-                    ('PersonHomePhone': '') if (item.'type' != "Home"),
-                    ('SSOT_HomePhone_ID__pc': '') if (item.'type' != "Home"),
-                    ('SSOT_HomePhone_Primary__pc': '') if (item.'type' != "Home"),
-                    ('SSOT_HomePhone_Date_Time__pc': '') if (item.'type' != "Home"),
-
+                    'PersonHomePhone':             if (item.'type' == "Home") item.number else '',
+                    'SSOT_HomePhone_ID__pc':       if (item.'type' == "Home") item.phoneId else '',
+                    'SSOT_HomePhone_Primary__pc':  if (item.'type' == "Home") item.primary else "false",
+                    'SSOT_HomePhone_Date_Time__pc':if (item.'type' == "Home") item.date as DateTime else '',
+                    
                     // Business phone
-                    ('PersonOtherPhone': item.number) if (item.'type' == "Business"),
-                    ('SSOT_BusinessPhone_ID__pc': item.phoneId) if (item.'type' == "Business"),
-                    ('SSOT_BusinessPhone_Primary__pc': item.primary) if (item.'type' == "Business"),
-                    ('SSOT_BusinessPhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Business"),
-                    ('PersonOtherPhone': '') if (item.'type' != "Business"),
-                    ('SSOT_BusinessPhone_ID__pc': '') if (item.'type' != "Business"),
-                    ('SSOT_BusinessPhone_Primary__pc': '') if (item.'type' != "Business"),
-                    ('SSOT_BusinessPhone_Date_Time__pc': '') if (item.'type' != "Business"),
-
+                    'PersonOtherPhone':            if (item.'type' == "Business") item.number else '',
+                    'SSOT_BusinessPhone_ID__pc':   if (item.'type' == "Business") item.phoneId else '',
+                    'SSOT_BusinessPhone_Primary__pc':  if (item.'type' == "Business") item.primary else "false",
+                    'SSOT_BusinessPhone_Date_Time__pc':if (item.'type' == "Business") item.date as DateTime else '',
+                    
                     // Fax phone
-                    ('Fax': item.number) if (item.'type' == "Fax"),
-                    ('SSOT_FaxPhone_ID__pc': item.phoneId) if (item.'type' == "Fax"),
-                    ('SSOT_FaxPhone_Primary__pc': item.primary) if (item.'type' == "Fax"),
-                    ('SSOT_FaxPhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Fax"),
-                    ('Fax': '') if (item.'type' != "Fax"),
-                    ('SSOT_FaxPhone_ID__pc': '') if (item.'type' != "Fax"),
-                    ('SSOT_FaxPhone_Primary__pc': '') if (item.'type' != "Fax"),
-                    ('SSOT_FaxPhone_Date_Time__pc': '') if (item.'type' != "Fax"),                    
+                    'Fax':                         if (item.'type' == "Fax") item.number else '',
+                    'SSOT_FaxPhone_ID__pc':        if (item.'type' == "Fax") item.phoneId else '',
+                    'SSOT_FaxPhone_Primary__pc':   if (item.'type' == "Fax") item.primary else "false",
+                    'SSOT_FaxPhone_Date_Time__pc': if (item.'type' == "Fax") item.date as DateTime else ''
                 }
                 ]]>
                 </ee:set-payload>

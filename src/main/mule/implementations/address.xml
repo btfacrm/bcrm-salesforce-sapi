@@ -22,7 +22,9 @@
         <flow-ref doc:name="query contact" name="query-contact"/>
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 
-        <ee:transform doc:name="build Salesforce payload for Account">
+        <!-- Update account with primary address -->
+
+        <ee:transform doc:name="Update account with primary address">
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/java
@@ -47,9 +49,9 @@
                         PersonMailingStreet: street(address.address1,
                                                 address.address2,
                                                 address.address3) withMaxSize  150,
-                        'PersonMailingCity': address.city,
-                        'PersonMailingStateCode': address.state,
-                        'PersonMailingPostalCode': address.zipCode
+                        'PersonMailingCity':      if (!isEmpty(address.city)) address.city else "#N/A",
+                        'PersonMailingStateCode': if (!isEmpty(address.state)) address.state else "#N/A",
+                        'PersonMailingPostalCode':if (!isEmpty(address.zipCode)) address.zipCode else "#N/A"
                     }
                 ]]>
                 </ee:set-payload>

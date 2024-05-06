@@ -74,10 +74,19 @@
 			</error-handler>
 		</try>
 		<set-variable doc:name="records failed" variableName="numberRecordsFailed" value="#[ payload.numberRecordsFailed ]"/>
+		<set-variable doc:name="datastore error" variableName="datastoreError" value="#[ '' ]"/>
+		<set-variable doc:name="datastore processing time" variableName="datastoreProcessingTime" value="#[ payload.totalProcessingTime ]"/>
 		<set-variable doc:name="records processed" variableName="numberRecordsProcessed" value="#[ payload.numberRecordsProcessed ]"/>
 		<set-variable doc:name="job state" variableName="state" value="#[ payload.state ]"/>
 		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number {unit: 'milliseconds'}) - vars.batchStart]"/>
-		
+
+		<choice doc:name="jobs with errors" >
+			<when expression='#[vars.numberRecordsFailed > 0]'>
+				<salesforce:retrieve-job-failed-results-bulk-v2 config-ref="GlobalSalesforceConfig" id="#[vars.jobId]"/>
+				<set-variable doc:name="datastore error" variableName="datastoreError" value="#[ payload ]"/>
+			</when>
+		</choice>
+
 		<flow-ref doc:name="build batch result" name="batch-result"/>
 	</flow>
 
@@ -94,8 +103,9 @@
 					object: vars.salesforceObject,
 					operation: vars.bulkOperation,
 					recordsFailed: vars.numberRecordsFailed,
+					datastoreError: vars.datastoreError,
 					recordsProcessed: vars.numberRecordsProcessed,
-					datastoreProcessingTime: payload.totalProcessingTime,
+					datastoreProcessingTime: vars.datastoreProcessingTime,
 					batchProcessingTime: vars.internalBatchDuration
 				}]
                 ]]>
