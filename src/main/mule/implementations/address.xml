@@ -22,7 +22,12 @@
         <flow-ref doc:name="query contact" name="query-contact"/>
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 
-        <!-- Update account with primary address -->
+        <!-- Notes:
+            - Update account with primary address
+            - The list of records to update in Account Object can be less than the input records,
+              because not all the records are primary. Other endpoints like balance, both list must
+              have the same size, otherwise is an error.
+        -->
 
         <ee:transform doc:name="Update account with primary address">
             <ee:message >
