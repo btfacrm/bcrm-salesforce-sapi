@@ -19,6 +19,7 @@
 	<sub-flow name="initialize-batch">
 		<logger level="INFO" category="app" message="#['Input records: ' ++ (sizeOf(payload) as String default '') ]" /> 
 		<set-variable doc:name="start service" variableName="start" value="#[now() as Number {unit: 'milliseconds'}]" />
+		<set-variable doc:name="start service date" variableName="startDate" value="#[now()]" />
 		<set-variable doc:name="save payload" variableName="originalPayload" value="#[payload]" />
 		<set-variable doc:name="initialize batch list" variableName="batchList" value="#[[]]"  />
 	</sub-flow>
@@ -147,6 +148,8 @@
 						message: vars.message,
 						status: vars.httpStatus,
 						receivedRecords: sizeOf(vars.originalPayload),
+						startDate: vars.startDate,
+						endDate: now(),
 						serviceProcessingTime: vars.serviceProcessingTime,
 						correlationId: correlationId,
 						batchList: vars.batchList
