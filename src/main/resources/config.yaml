@@ -16,7 +16,7 @@ messages:
   batch-backend-errorrecords: "Some records couldn't be processed in datastore"
 
 batch:
-  maxretries: "120"
+  maxretries: "180"
   millisretry: "1000"
 
 # Components to configure:

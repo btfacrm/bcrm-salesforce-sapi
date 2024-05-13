@@ -118,7 +118,6 @@
 	</sub-flow>
 
 	<sub-flow name="service-response">
-		<set-variable doc:name="batch-time-process" variableName="serviceProcessingTime" value="#[(now() as Number {unit: 'milliseconds'}) - vars.start]"  />
 		
 		<ee:transform doc:name="count jobs with errors" >
 			<ee:variables >
@@ -145,13 +144,23 @@
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 					output application/json
+
+					import * from dw::core::Periods
+					import leftPad from dw::core::Strings
+					
+					var processingTime = now() - vars.startDate
+					var milliseconds = processingTime as Number {unit: 'milliseconds'} mod 1000
 					---
 					{
-						message: vars.message,
 						status: vars.httpStatus,
+						message: vars.message,
+						startDate: (vars.startDate as DateTime) as String {format:"yyyy-MM-dd HH:mm:ss"},
+						endDate: now() as String {format:"yyyy-MM-dd HH:mm:ss"},
+						processingTime: leftPad(processingTime.hours as String, 2, "0") ++ ":" ++ 
+										leftPad(processingTime.minutes as String, 2, "0") ++ ":" ++
+										leftPad((processingTime.seconds mod 60 as Number) as String, 2, "0") ++ ":" ++
+										leftPad(milliseconds as String, 3, "0"),
 						receivedRecords: sizeOf(vars.originalPayload),
-						startDate: vars.startDate,
-						endDate: now(),
 						serviceProcessingTime: vars.serviceProcessingTime,
 						correlationId: correlationId,
 						batchList: vars.batchList
