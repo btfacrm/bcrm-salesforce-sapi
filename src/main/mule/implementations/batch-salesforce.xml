@@ -161,7 +161,6 @@
 										leftPad((processingTime.seconds mod 60 as Number) as String, 2, "0") ++ ":" ++
 										leftPad(milliseconds as String, 3, "0"),
 						receivedRecords: sizeOf(vars.originalPayload),
-						serviceProcessingTime: vars.serviceProcessingTime,
 						correlationId: correlationId,
 						batchList: vars.batchList
 					}
