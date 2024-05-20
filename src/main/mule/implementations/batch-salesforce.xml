@@ -17,7 +17,9 @@
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 		
 	<sub-flow name="initialize-batch">
-		<logger level="INFO" category="app" message="#['Input records: ' ++ (sizeOf(payload) as String default '') ]" /> 
+		<set-variable doc:name="get batch number" variableName="batchNumber" value="#[attributes.queryParams.batchNumber as String default '']" />
+		<logger level="INFO" category="app" 
+			message="#[output application/java ---'Batch number: ' ++ vars.batchNumber ++ ', input records: ' ++ (sizeOf(payload) as String default '') ]" /> 
 		<set-variable doc:name="start service" variableName="start" value="#[now() as Number {unit: 'milliseconds'}]" />
 		<set-variable doc:name="start service date" variableName="startDate" value="#[now()]" />
 		<set-variable doc:name="save payload" variableName="originalPayload" value="#[payload]" />
@@ -60,6 +62,7 @@
 						<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}"/>
 					</when>
 					<when expression='#[payload.state == "Failed"]'>
+						<logger doc:name="job error" level="INFO" message="#['Error found in job: ' ++ (vars.jobId as String) ++ ', status: ' ++ payload.state ]" />
 						<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
 						<set-variable doc:name="message error" variableName="message" value="${messages.batch-error}"/>
 					</when>
@@ -84,7 +87,7 @@
 		<set-variable doc:name="batch-time-process" variableName="internalBatchDuration" value="#[(now() as Number {unit: 'milliseconds'}) - vars.batchStart]"/>
 
 		<choice doc:name="jobs with errors" >
-			<when expression='#[vars.numberRecordsFailed > 0]'>
+			<when expression='#[vars.numberRecordsFailed > 0 or payload.state == "Failed"]'>
 				<salesforce:retrieve-job-failed-results-bulk-v2 config-ref="GlobalSalesforceConfig" id="#[vars.jobId]"/>
 				<set-variable doc:name="datastore error" variableName="datastoreError" value="#[ payload ]"/>
 			</when>
@@ -126,7 +129,7 @@
 					import countBy from dw::core::Arrays
 					---
 					if ( !isEmpty(vars.batchList))
-						vars.batchList countBy($.recordsFailed != 0)
+						vars.batchList countBy($.recordsFailed != 0 or $.state=="Failed")
 					else 0
                 ]]>
 				</ee:set-variable>	
@@ -162,6 +165,7 @@
 										leftPad(milliseconds as String, 3, "0"),
 						receivedRecords: sizeOf(vars.originalPayload),
 						correlationId: correlationId,
+						clientbatchNumber: vars.batchNumber,
 						batchList: vars.batchList
 					}
 					]]>
