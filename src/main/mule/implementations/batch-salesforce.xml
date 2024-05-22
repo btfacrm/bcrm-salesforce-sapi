@@ -28,6 +28,8 @@
 	
 	<flow name="job-bulk" >
 		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number {unit: 'milliseconds'}]"/>
+		<set-variable doc:name="set detailErrorBulkApi" variableName="detailErrorBulkApi" value=""/>
+		<set-variable doc:name="set errorBulkApi" variableName="errorBulkApi" value=""/>
 
 		<ee:transform doc:name="build bulk csv" >
             <ee:message >
@@ -63,6 +65,8 @@
 					</when>
 					<when expression='#[payload.state == "Failed"]'>
 						<logger doc:name="job error" level="INFO" message="#['Error found in job: ' ++ (vars.jobId as String) ++ ', status: ' ++ payload.state ]" />
+						<logger doc:name="payload result" level="INFO" message="#[output application/json --- payload]" />
+						<set-variable doc:name="set errorBulkApi" variableName="errorBulkApi" value="#[payload]"/>
 						<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
 						<set-variable doc:name="message error" variableName="message" value="${messages.batch-error}"/>
 					</when>
@@ -80,7 +84,6 @@
 			</error-handler>
 		</try>
 		<set-variable doc:name="records failed" variableName="numberRecordsFailed" value="#[ payload.numberRecordsFailed ]"/>
-		<set-variable doc:name="datastore error" variableName="datastoreError" value="#[ '' ]"/>
 		<set-variable doc:name="datastore processing time" variableName="datastoreProcessingTime" value="#[ payload.totalProcessingTime ]"/>
 		<set-variable doc:name="records processed" variableName="numberRecordsProcessed" value="#[ payload.numberRecordsProcessed ]"/>
 		<set-variable doc:name="job state" variableName="state" value="#[ payload.state ]"/>
@@ -89,7 +92,7 @@
 		<choice doc:name="jobs with errors" >
 			<when expression='#[vars.numberRecordsFailed > 0 or payload.state == "Failed"]'>
 				<salesforce:retrieve-job-failed-results-bulk-v2 config-ref="GlobalSalesforceConfig" id="#[vars.jobId]"/>
-				<set-variable doc:name="datastore error" variableName="datastoreError" value="#[ payload ]"/>
+				<set-variable doc:name="set detailErrorBulkApi" variableName="detailErrorBulkApi" value="#[ payload ]"/>
 			</when>
 		</choice>
 
@@ -104,12 +107,13 @@
                 ---
 				vars.batchList ++
 				[{
-					job: payload.id,
+					job: vars.jobId,
 					state: vars.state,
 					object: vars.salesforceObject,
 					operation: vars.bulkOperation,
 					recordsFailed: vars.numberRecordsFailed,
-					datastoreError: vars.datastoreError,
+					errorBulkApi: if (isEmpty(vars.errorBulkApi)) '' else vars.errorBulkApi,
+					detailErrorBulkApi: if (isEmpty(vars.detailErrorBulkApi)) '' else vars.detailErrorBulkApi,
 					recordsProcessed: vars.numberRecordsProcessed,
 					datastoreProcessingTime: vars.datastoreProcessingTime,
 					batchProcessingTime: vars.internalBatchDuration
