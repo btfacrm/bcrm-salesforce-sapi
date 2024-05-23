@@ -34,29 +34,16 @@
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/java
                 import * from dw::core::Strings
-
-                fun addAddress(s1,s2) =
-                    if (isEmpty(s2)) s1
-                    else s1 ++ ". " ++ s2
-
-                fun street(a1, a2, a3) = 
-                    if ( isEmpty(a1) )
-                        addAddress(a2, a3)
-                    else
-                        if (isEmpty(addAddress(a2, a3)))
-                            a1
-                        else
-                            a1 ++ ". " ++ addAddress(a2, a3)
                 ---
                 vars.originalPayload filter ( $.primary == true )
                     map (address) -> {
                         'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
-                        PersonMailingStreet: street(address.address1,
-                                                address.address2,
-                                                address.address3) withMaxSize  150,
-                        'PersonMailingCity':      if (!isEmpty(address.city)) address.city else "#N/A",
-                        'PersonMailingStateCode': if (!isEmpty(address.state)) address.state else "#N/A",
-                        'PersonMailingPostalCode':if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
+                        'PersonMailingStreet':     trim( (address.address1 default '') ++ ' ' ++
+                                                    (address.address2 default '') ++ ' ' ++
+                                                    (address.address3 default '') ) withMaxSize  150,
+                        'PersonMailingCity':       if (!isEmpty(address.city)) address.city else "#N/A",
+                        'PersonMailingStateCode':  if (!isEmpty(address.state)) address.state else "#N/A",
+                        'PersonMailingPostalCode': if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
                         'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A"
                     }
                 ]]>

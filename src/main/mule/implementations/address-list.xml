@@ -36,7 +36,13 @@
                         'Address_2__c':     if (!isEmpty(address.address2)) address.address2 else "#N/A",
                         'Address_3__c':     if (!isEmpty(address.address3)) address.address3 else "#N/A",
                         'City__c':          if (!isEmpty(address.city)) address.city else "#N/A",
-                        'State__c':         if (!isEmpty(address.state)) address.state else "#N/A",
+                        'State__c':         if (!isEmpty(address.state) ) 
+                                                if ( address.state  contains('-'))
+                                                    "#N/A"
+                                                else 
+                                                    address.state
+                                            else
+                                                "#N/A",
                         'Zip_Code__c':      if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
                         'Country_Code__c':  if (!isEmpty(address.country)) address.country else "#N/A",
                         'Primary__c':       if (!isEmpty(address.primary)) address.primary else false,
