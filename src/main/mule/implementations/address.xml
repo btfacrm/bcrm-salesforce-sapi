@@ -57,7 +57,7 @@
                         'PersonMailingCity':      if (!isEmpty(address.city)) address.city else "#N/A",
                         'PersonMailingStateCode': if (!isEmpty(address.state)) address.state else "#N/A",
                         'PersonMailingPostalCode':if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
-                        'PersonMailingCountry':   if (!isEmpty(address.country)) address.country else "#N/A"
+                        'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A"
                     }
                 ]]>
                 </ee:set-payload>
