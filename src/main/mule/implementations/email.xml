@@ -34,7 +34,7 @@
                         ---
                         vars.originalPayload map (email) -> {
                             'Id':                           (vars.listIds filter ( $.contactId == email.contactId )).id[0],
-                            'PersonEmail':                  email.email,
+                            'TempEmail__pc':                email.email,
                             'SSOT_PersonEmailID__pc':       email.emailId,
                             'SSOT_PersonEmail_Date_Time__pc':email.date as DateTime
                         }
