@@ -42,6 +42,7 @@
                         }
                         ]]>
                         </ee:set-payload>
+                        <!-- 'Tribe__r.Tribe_Code__c': if (!isEmpty(item.tribeCode)) item.tribeCode else "#N/A", -->
                     </ee:message>
                 </ee:transform>
                 

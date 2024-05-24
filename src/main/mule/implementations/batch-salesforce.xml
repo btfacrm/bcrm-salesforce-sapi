@@ -159,18 +159,19 @@
 					var milliseconds = processingTime as Number {unit: 'milliseconds'} mod 1000
 					---
 					{
-						status: vars.httpStatus,
-						message: vars.message,
-						startDate: (vars.startDate as DateTime) as String {format:"yyyy-MM-dd HH:mm:ss"},
-						endDate: now() as String {format:"yyyy-MM-dd HH:mm:ss"},
+						status: 		vars.httpStatus,
+						message: 		vars.message,
+						startDate: 		(vars.startDate as DateTime) as String {format:"yyyy-MM-dd HH:mm:ss"},
+						endDate: 		now() as String {format:"yyyy-MM-dd HH:mm:ss"},
 						processingTime: leftPad(processingTime.hours as String, 2, "0") ++ ":" ++ 
 										leftPad(processingTime.minutes as String, 2, "0") ++ ":" ++
 										leftPad((processingTime.seconds mod 60 as Number) as String, 2, "0") ++ ":" ++
 										leftPad(milliseconds as String, 3, "0"),
-						receivedRecords: sizeOf(vars.originalPayload),
-						correlationId: correlationId,
-						clientbatchNumber: vars.batchNumber,
-						batchList: vars.batchList
+						receivedRecords: 	sizeOf(vars.originalPayload),
+						identifiers: 		if (vars.httpStatus == 404) vars.listIds else '',
+						correlationId: 		correlationId,
+						clientbatchNumber: 	vars.batchNumber,
+						batchList: 			vars.batchList
 					}
 					]]>
 				</ee:set-payload>
