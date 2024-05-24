@@ -49,7 +49,7 @@
                                                    else
                                                         if (!isEmpty(address.country)
                                                             and (["US","CA","MX"] contains address.country) )
-                                                            if ( address.state  contains('-'))
+                                                            if ( (address.state  contains('-')) or (address.state contains('_')))
                                                                 "#N/A"
                                                             else 
                                                                 address.state
