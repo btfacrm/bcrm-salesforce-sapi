@@ -42,9 +42,20 @@
                                                     (address.address2 default '') ++ ' ' ++
                                                     (address.address3 default '') ) withMaxSize  150,
                         'PersonMailingCity':       if (!isEmpty(address.city)) address.city else "#N/A",
-                        'PersonMailingStateCode':  if (!isEmpty(address.state)) address.state else "#N/A",
                         'PersonMailingPostalCode': if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
-                        'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A"
+                        'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A",
+                        'PersonMailingStateCode':  if ( isEmpty(address.state) ) 
+                                                        "#N/A"
+                                                   else
+                                                        if (!isEmpty(address.country)
+                                                            and (["US","CA","MX"] contains address.country) )
+                                                            if ( address.state  contains('-'))
+                                                                "#N/A"
+                                                            else 
+                                                                address.state
+                                                        else
+                                                            "#N/A"
+
                     }
                 ]]>
                 </ee:set-payload>
