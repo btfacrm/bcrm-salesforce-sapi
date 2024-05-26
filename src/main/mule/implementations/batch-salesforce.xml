@@ -168,7 +168,14 @@
 										leftPad((processingTime.seconds mod 60 as Number) as String, 2, "0") ++ ":" ++
 										leftPad(milliseconds as String, 3, "0"),
 						receivedRecords: 	sizeOf(vars.originalPayload),
-						identifiers: 		if (vars.httpStatus == 404) vars.listIds else '',
+						inputAnalisys:		if (!isEmpty(vars.inputAnalisys)) 
+												vars.inputAnalisys 
+											else 
+												'',
+						missingIds: 		if (!isEmpty(vars.missingIds)) 
+						 						vars.missingIds 
+											else 
+												'',
 						correlationId: 		correlationId,
 						clientbatchNumber: 	vars.batchNumber,
 						batchList: 			vars.batchList

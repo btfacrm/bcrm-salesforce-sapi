@@ -19,11 +19,43 @@
     <flow name="endpoint-email">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- ********************************************
-             UPDATE ACCOUNT RECORDS IN SALESFORCE
-             ******************************************** -->
+        <!-- Update phone in Account object in Salesforce -->
 
-        <flow-ref doc:name="query contact" name="query-contact"/>
+        <!-- Remove duplicated contactId that may come in the input payload -->
+
+        <ee:transform doc:name="input record analisys" >
+            <ee:variables >
+                <ee:set-variable variableName="inputAnalisys"><![CDATA[%dw 2.0
+                    output application/json
+
+                    //Find repeated IDs in input payload
+                    //https://dzone.com/articles/identifying-duplicate-values-in-an-array-using-mul
+
+                    var filteredList =  payload distinctBy $.contactId
+                    var filteredOnlyId = filteredList.contactId
+                    var inputOnlyId = payload.contactId
+                    var duplicates = (
+                        filteredOnlyId map(key,value) -> {
+                            count : if (sizeOf((inputOnlyId map $ == key) filter $ ) > 1)
+                                        key
+                                    else 
+                                        null
+                        }
+                    ) filter $.count !=null
+                    ---
+                    {
+                        inputRecords:   sizeOf(payload),
+                        duplicateTotal: sizeOf(payload) - sizeOf( filteredList ),
+                        duplicateIds:   duplicates.count
+                    }
+                ]]>
+                </ee:set-variable>	
+            </ee:variables>
+        </ee:transform>
+		<set-variable doc:name="save payload" variableName="originalPayload" value="#[payload distinctBy $.contactId]" />
+
+        <!-- Search in Salesforce contactId key -->
+		<flow-ref doc:name="query contact" name="query-contact"/>
         
         <choice doc:name="Choice" >
             <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
@@ -49,10 +81,28 @@
                 <flow-ref doc:name="run job" name="job-bulk"/>
             </when>
             <otherwise>
-                <logger doc:name="bulk result" level="INFO" category="app" 
-                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', IIM accounts in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
                 <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
                 <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
+                <set-variable doc:name="set total missingids" variableName="totalMissing" value="#[sizeOf(vars.originalPayload) - sizeOf(vars.listIds)]"/>
+
+                <ee:transform doc:name="find missingIds" >
+                    <ee:variables >
+                        <ee:set-variable variableName="missingIds"><![CDATA[%dw 2.0
+                            output application/json
+                            var sourceId = vars.listIds.contactId
+                            var inputId = vars.originalPayload.contactId
+                            ---
+                            {
+                                total:          vars.totalMissing,
+                                inputRecords:   sizeOf(inputId),
+                                sourceRecords:  sizeOf(sourceId),
+                                keys:           (vars.originalPayload.contactId -- vars.listIds.contactId)
+                            }
+                        ]]>
+                        </ee:set-variable>	
+                    </ee:variables>
+                </ee:transform>
+                <logger level="DEBUG" category="app" message="#['Error, missing identifiers: ' ++ vars.totalMissing as String]" />
             </otherwise>
         </choice>
 
