@@ -84,6 +84,6 @@
     </flow>
 
     <flow name="post:\tribalenrollment:application\json:api-config">
-        <flow-ref doc:name="tribalenrollment" name="endpoint-tribalenrollment"/>
-  </flow>
+        <logger level="DEBUG" category="app" message="#['Not implemented']" />
+    </flow>
 </mule>

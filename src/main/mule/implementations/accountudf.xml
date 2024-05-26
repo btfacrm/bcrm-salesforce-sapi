@@ -24,7 +24,7 @@
         <choice doc:name="Choice" >
             <when expression='#[sizeOf(vars.listIds) == sizeOf(vars.originalPayload)]'>
                 <ee:transform doc:name="build Salesforce payload for trust account" >
-                    <ee:message >
+                    <ee:message>
                         <ee:set-payload ><![CDATA[%dw 2.0
                         output application/java
                         ---
@@ -52,10 +52,29 @@
                 <flow-ref doc:name="run job" name="job-bulk"/>
             </when>
             <otherwise>
-                <logger doc:name="bulk result" level="INFO" category="app" 
-                    message="#['Records received: ' ++ sizeOf(vars.originalPayload) ++ ', IIM accounts in Salesforce: ' ++ sizeOf(vars.listIds)]"/>
                 <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
                 <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
+
+                <ee:transform doc:name="find missingIds" >
+                    <ee:variables>
+                        <ee:set-variable variableName="missingIds"><![CDATA[%dw 2.0
+                            output application/json
+
+                            var totalMissing = sizeOf(vars.originalPayload) - sizeOf(vars.listIds)
+                            var sourceId = vars.listIds.account
+                            var inputId = vars.originalPayload.account
+                            ---
+                            {
+                                total:          totalMissing,
+                                inputRecords:   sizeOf(inputId),
+                                sourceRecords:  sizeOf(sourceId),
+                                keys:           (vars.originalPayload.account -- vars.listIds.account)
+                            }
+                        ]]>
+                        </ee:set-variable>	
+                    </ee:variables>
+                </ee:transform>
+                <logger level="DEBUG" category="app" message="#['Error, missing identifiers: ' ++ vars.missingIds.total as String]" />
             </otherwise>
         </choice>
 

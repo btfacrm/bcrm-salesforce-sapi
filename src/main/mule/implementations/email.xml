@@ -83,17 +83,18 @@
             <otherwise>
                 <set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
                 <set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
-                <set-variable doc:name="set total missingids" variableName="totalMissing" value="#[sizeOf(vars.originalPayload) - sizeOf(vars.listIds)]"/>
 
                 <ee:transform doc:name="find missingIds" >
                     <ee:variables >
                         <ee:set-variable variableName="missingIds"><![CDATA[%dw 2.0
                             output application/json
+
+                            var totalMissing = sizeOf(vars.originalPayload) - sizeOf(vars.listIds)
                             var sourceId = vars.listIds.contactId
                             var inputId = vars.originalPayload.contactId
                             ---
                             {
-                                total:          vars.totalMissing,
+                                total:          totalMissing,
                                 inputRecords:   sizeOf(inputId),
                                 sourceRecords:  sizeOf(sourceId),
                                 keys:           (vars.originalPayload.contactId -- vars.listIds.contactId)
@@ -102,7 +103,7 @@
                         </ee:set-variable>	
                     </ee:variables>
                 </ee:transform>
-                <logger level="DEBUG" category="app" message="#['Error, missing identifiers: ' ++ vars.totalMissing as String]" />
+                <logger level="DEBUG" category="app" message="#['Error, missing identifiers: ' ++ vars.missingIds.total as String]" />
             </otherwise>
         </choice>
 
