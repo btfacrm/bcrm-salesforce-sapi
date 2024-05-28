@@ -17,9 +17,12 @@
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 		
 	<sub-flow name="initialize-batch">
+		<set-variable doc:name="received records" variableName="receivedRecords" value="#[sizeOf(payload)]" />
 		<set-variable doc:name="get batch number" variableName="batchNumber" value="#[attributes.queryParams.batchNumber as String default '']" />
+		<set-variable doc:name="set view" variableName="view" value='#["View: " ++ (attributes.maskedRequestPath replace "/" with(""))]' />
+
 		<logger level="INFO" category="app" 
-			message="#[output application/java ---'Batch number: ' ++ vars.batchNumber ++ ', input records: ' ++ (sizeOf(payload) as String default '') ]" /> 
+			message="#[output application/java --- vars.view ++ ', batch number: ' ++ vars.batchNumber ++ ', input records: ' ++ (vars.receivedRecords as String default '') ]" /> 
 		<set-variable doc:name="start service" variableName="start" value="#[now() as Number {unit: 'milliseconds'}]" />
 		<set-variable doc:name="start service date" variableName="startDate" value="#[now()]" />
 		<set-variable doc:name="save payload" variableName="originalPayload" value="#[payload]" />
@@ -30,6 +33,8 @@
 		<set-variable doc:name="register start job" variableName="batchStart" value="#[now() as Number {unit: 'milliseconds'}]"/>
 		<set-variable doc:name="set detailErrorBulkApi" variableName="detailErrorBulkApi" value=""/>
 		<set-variable doc:name="set errorBulkApi" variableName="errorBulkApi" value=""/>
+		<remove-variable doc:name="remove original payload" variableName="originalPayload"/>
+		<remove-variable doc:name="remove list backend keys" variableName="listIds"/>
 
 		<ee:transform doc:name="build bulk csv" >
             <ee:message >
@@ -53,7 +58,7 @@
 			<reconnect count="5"/>
 		</salesforce:create-job-bulk-api-v2>
 		<set-variable doc:name="save jobId" variableName="jobId" value="#[payload.id]"/>
-		<logger level="INFO" category="app" message="#['Salesforce job: ' ++ vars.jobId as String]" />
+		<logger level="INFO" category="app" message="#[output application/java --- vars.view ++ ', salesforce job: ' ++ vars.jobId as String]" />
 
 		<try doc:name="verify job status">
 			<until-successful doc:name="until sucess" maxRetries="${batch.maxretries}" millisBetweenRetries="${batch.millisretry}">
@@ -64,7 +69,7 @@
 						<set-variable doc:name="message success" variableName="message" value="${messages.batch-success}"/>
 					</when>
 					<when expression='#[payload.state == "Failed"]'>
-						<logger doc:name="job error" level="INFO" message="#['Error found in job: ' ++ (vars.jobId as String) ++ ', status: ' ++ payload.state ]" />
+						<logger doc:name="job error" level="INFO" message="#[output application/java --- vars.view ++ ', error found in job: ' ++ (vars.jobId as String) ++ ', status: ' ++ payload.state ]" />
 						<logger doc:name="payload result" level="INFO" message="#[output application/json --- payload]" />
 						<set-variable doc:name="set errorBulkApi" variableName="errorBulkApi" value="#[payload]"/>
 						<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
@@ -73,7 +78,7 @@
 					<otherwise>
 						<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
 						<set-variable doc:name="message still running" variableName="message" value="${messages.batch-stillrunning}"/>
-						<logger doc:name="attempt" level="INFO" message="#['Job: ' ++ (vars.jobId as String) ++ ', status: ' ++ payload.state ++ ', max attempts: ${batch.maxretries}']" />
+						<logger doc:name="attempt" level="INFO" message="#[output application/java --- vars.view ++ ', job still running: ' ++ (vars.jobId as String) ++ ', status: ' ++ payload.state ++ ', max attempts: ${batch.maxretries}']" />
 						<raise-error doc:name="Raise error" type="MULE:CONNECTIVITY" description="The batch job still processing in Salesforce"/>
 					</otherwise>
 				</choice>
@@ -167,9 +172,9 @@
 										leftPad(processingTime.minutes as String, 2, "0") ++ ":" ++
 										leftPad((processingTime.seconds mod 60 as Number) as String, 2, "0") ++ ":" ++
 										leftPad(milliseconds as String, 3, "0"),
-						receivedRecords: 	sizeOf(vars.originalPayload),
-						inputAnalisys:		if (!isEmpty(vars.inputAnalisys)) 
-												vars.inputAnalisys 
+						receivedRecords: 	vars.receivedRecords,
+						duplicateRecords:	if (!isEmpty(vars.duplicateRecords)) 
+												vars.duplicateRecords 
 											else 
 												'',
 						missingIds: 		if (!isEmpty(vars.missingIds)) 
@@ -186,4 +191,36 @@
         </ee:transform>		
 	</sub-flow>
 
+	<sub-flow name="analyze-input-records-contact">
+
+		<ee:transform doc:name="find missingIds for conctact" >
+			<ee:variables >
+				<ee:set-variable variableName="missingIds"><![CDATA[%dw 2.0
+					output application/json
+
+					var backendId = vars.listIds.contactId
+					var inputId = vars.originalPayload.contactId
+					var unmatchedKeys = (inputId -- backendId) distinctBy $					
+					---
+					{
+						inputRecords: sizeOf(inputId),
+						backendKeys:  sizeOf(backendId),
+						missingKeys:  unmatchedKeys,
+						totalMissing: sizeOf(unmatchedKeys)
+					}
+				]]>
+				</ee:set-variable>	
+			</ee:variables>
+		</ee:transform>
+		
+		<choice doc:name="found all keys in Salesforce?" >
+            <when expression='#[vars.missingIds.totalMissing > 0]'>
+				<logger level="DEBUG" category="app" message="#[output application/java --- vars.view ++', error missing identifiers: ' ++ vars.missingIds.totalMissing as String]" />	
+				<set-variable doc:name="status 404" variableName="httpStatus" value="#[404]"/>
+				<set-variable doc:name="message error" variableName="message" value="${messages.batch-primaryidentifier-notpresent}"/>
+				<remove-variable doc:name="remove original payload" variableName="originalPayload"/>
+				<remove-variable doc:name="remove original payload" variableName="listIds"/>
+			</when>
+		</choice>
+	</sub-flow>
 </mule>

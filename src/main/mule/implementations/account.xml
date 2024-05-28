@@ -20,10 +20,10 @@
 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
+        <!-- Look for all IIM_Account_Number__c keys to determine if the which input records will be create or update-->
         <flow-ref doc:name="query account" name="query-account"/>
 
         <set-variable doc:name="save account ids" variableName="listAccountIds" value="#[vars.listIds]"/>
-        <set-payload doc:name="restore payload" value="#[vars.originalPayload]"/>
           
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:variables >

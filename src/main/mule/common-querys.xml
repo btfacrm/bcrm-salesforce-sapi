@@ -27,7 +27,7 @@
 	</flow>
 
 	<flow name="query-account">
-		<logger doc:name="query account" level="INFO" category="app" message="#['Query account']" />
+		<logger doc:name="query account" level="INFO" category="app" message="#[vars.view ++ ', query account for ids']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
@@ -45,7 +45,7 @@
 	</flow>
 
 	<flow name="query-contact">
-		<logger doc:name="query contact" level="INFO" category="app" message="#['Query contact']" />
+		<logger doc:name="query contact" level="INFO" category="app" message="#[vars.view ++ ', query contact for ids']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0
@@ -63,7 +63,7 @@
 	</flow>
 
 	<flow name="query-address">
-		<logger doc:name="query address" level="INFO" category="app" message="#['Query address']" />
+		<logger doc:name="query address" level="INFO" category="app" message="#[vars.view ++ ', query address for ids']" />
 		<ee:transform doc:name="create filter" >
 			<ee:variables >
 				<ee:set-variable variableName="queryFilter" ><![CDATA[%dw 2.0

@@ -35,6 +35,7 @@
                             'Agency__c': if (!isEmpty(item.agencyDescription)) item.agencyDescription else "#N/A",
                             'Region_Code__c': if (!isEmpty(item.regionCode)) item.regionCode else "#N/A",
                             'Region__c': if (!isEmpty(item.regionDescription)) item.regionDescription else "#N/A",
+                            'Tribe__r.Tribe_Code__c': if (!isEmpty(item.tribeCode)) item.tribeCode else "#N/A",
                             'Tribe_Code__c': if (!isEmpty(item.tribeCode)) item.tribeCode else "#N/A",
                             'Tribe_Description__c': if (!isEmpty(item.tribeDescription)) item.tribeDescription else "#N/A",
                             'Agency_Region_Tribe_Date_Time__c': item.date

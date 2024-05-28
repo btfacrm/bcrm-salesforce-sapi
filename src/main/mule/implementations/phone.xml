@@ -19,56 +19,205 @@
     <flow name="endpoint-phone">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- ********************************************
-             UPDATE ACCOUNT RECORDS IN SALESFORCE
-             ******************************************** -->
+        <!-- Update phone in Account object in Salesforce -->
 
-        <flow-ref doc:name="query phone" name="query-contact"/>
+        <!-- Look for all contactId keys -->
+        <flow-ref doc:name="query contact" name="query-contact"/>
 
-        <ee:transform doc:name="build Salesforce payload to update phones" >
-            <ee:message >
-                <ee:set-payload ><![CDATA[%dw 2.0
-                output application/java
-                ---
-                vars.originalPayload map (item, index) -> {
-                    'Id' : (vars.listIds filter ( $.contactId == item.contactId )).id[0],
-                
-                    // Celluar phone
-                    'PersonMobilePhone':           if (item.'type' == "Cellular") item.number else '',
-                    'SSOT_MobilePhone_ID__pc':     if (item.'type' == "Cellular") item.phoneId else '',
-                    'SSOT_MobilePhone_Primary__pc':if (item.'type' == "Cellular") item.primary else "false",
-                    'SSOT_MobilePhone_Date_Time__pc': if (item.'type' == "Cellular") item.date as DateTime else '',
-                    
-                    // Home phone
-                    'PersonHomePhone':             if (item.'type' == "Home") item.number else '',
-                    'SSOT_HomePhone_ID__pc':       if (item.'type' == "Home") item.phoneId else '',
-                    'SSOT_HomePhone_Primary__pc':  if (item.'type' == "Home") item.primary else "false",
-                    'SSOT_HomePhone_Date_Time__pc':if (item.'type' == "Home") item.date as DateTime else '',
-                    
-                    // Business phone
-                    'PersonOtherPhone':            if (item.'type' == "Business") item.number else '',
-                    'SSOT_BusinessPhone_ID__pc':   if (item.'type' == "Business") item.phoneId else '',
-                    'SSOT_BusinessPhone_Primary__pc':  if (item.'type' == "Business") item.primary else "false",
-                    'SSOT_BusinessPhone_Date_Time__pc':if (item.'type' == "Business") item.date as DateTime else '',
-                    
-                    // Fax phone
-                    'Fax':                         if (item.'type' == "Fax") item.number else '',
-                    'SSOT_FaxPhone_ID__pc':        if (item.'type' == "Fax") item.phoneId else '',
-                    'SSOT_FaxPhone_Primary__pc':   if (item.'type' == "Fax") item.primary else "false",
-                    'SSOT_FaxPhone_Date_Time__pc': if (item.'type' == "Fax") item.date as DateTime else ''
-                }
-                ]]>
-                </ee:set-payload>
-            </ee:message>
-        </ee:transform>
+        <flow-ref doc:name="analyze input records" name="analyze-input-records-contact"/>
+
+		<choice doc:name="found all keys in Salesforce?" >
+            <when expression='#[vars.missingIds.totalMissing == 0]'>
         
-        <!--<logger level="DEBUG" category="app" message="#[payload]" />-->
+                <!-- 1st transformation
+                Input payload: vars.originalPayload
+                [
+                    {
+                        "phoneId": "277944",
+                        "contactId": "189372",
+                        "type": "Cellular",
+                        "number": "360-286-9222",
+                        "primary": true,
+                        "date": "2024-05-22T14:51:30.461Z"
+                    },
+                    {
+                        "phoneId": "149446",
+                        "contactId": "189372",
+                        "type": "Home",
+                        "number": "306-286-9222",
+                        "primary": false,
+                        "date": "2024-05-22T14:51:30.461Z"
+                    }
+                ]
 
-        <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
-        <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+                Output: payload
+                [
+                    {
+                        "Id": "001OC000007gzhqYAA",
+                        "PersonMobilePhone": "360-286-9222",
+                        "SSOT_MobilePhone_ID__pc": "277944",
+                        "SSOT_MobilePhone_Primary__pc": true,
+                        "SSOT_MobilePhone_Date_Time__pc": "2024-05-22T14:51:30.461Z"
+                    },
+                    {
+                        "Id": "001OC000007gzhqYAA",
+                        "PersonHomePhone": "306-286-9222",
+                        "SSOT_HomePhone_ID__pc": "149446",
+                        "SSOT_HomePhone_Primary__pc": false,
+                        "SSOT_HomePhone_Date_Time__pc": "2024-05-22T14:51:30.461Z"
+                    }                
+                ]
+                -->
+                <ee:transform doc:name="1st transformation" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                        output application/json
+                        ---
+                        vars.originalPayload map (item, index) -> {
+                            'Id' : (vars.listIds filter ( $.contactId == item.contactId )).id[0],
 
-        <flow-ref doc:name="run job" name="job-bulk"/>
+                            // Celluar phone
+                            ('PersonMobilePhone': item.number) if (item.'type' == "Cellular"),
+                            ('SSOT_MobilePhone_ID__pc': item.phoneId) if (item.'type' == "Cellular"),
+                            ('SSOT_MobilePhone_Primary__pc': item.primary) if (item.'type' == "Cellular"),
+                            ('SSOT_MobilePhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Cellular"),
+                            
+                            // Home phone
+                            ('PersonHomePhone': item.number) if (item.'type' == "Home"),
+                            ('SSOT_HomePhone_ID__pc': item.phoneId) if (item.'type' == "Home"),
+                            ('SSOT_HomePhone_Primary__pc': item.primary) if (item.'type' == "Home"),
+                            ('SSOT_HomePhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Home"),
 
+                            // Business phone
+                            ('PersonOtherPhone': item.number) if (item.'type' == "Business"),
+                            ('SSOT_BusinessPhone_ID__pc': item.phoneId) if (item.'type' == "Business"),
+                            ('SSOT_BusinessPhone_Primary__pc': item.primary) if (item.'type' == "Business"),
+                            ('SSOT_BusinessPhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Business"),
+
+                            // Fax phone
+                            ('Fax': item.number) if (item.'type' == "Fax"),
+                            ('SSOT_FaxPhone_ID__pc': item.phoneId) if (item.'type' == "Fax"),
+                            ('SSOT_FaxPhone_Primary__pc': item.primary) if (item.'type' == "Fax"),
+                            ('SSOT_FaxPhone_Date_Time__pc': item.date as DateTime) if (item.'type' == "Fax"),
+                        }
+                        ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <!-- 2nd transformation. Merge duplicate records by Id, and fill with emptys for the unused phones. We use an aggregator
+                function as desribed in next article: 
+                https://help.mulesoft.com/s/question/0D52T00005wyFWCSA2/aggregate-objects-in-an-array-which-fields-has-same-values-in-dataweave
+                
+                Input payload:
+                [
+                    {
+                        "Id": "001OC000007gzhqYAA",
+                        "PersonMobilePhone": "360-286-9222",
+                        "SSOT_MobilePhone_ID__pc": "277944",
+                        "SSOT_MobilePhone_Primary__pc": true,
+                        "SSOT_MobilePhone_Date_Time__pc": "2024-05-22T14:51:30.461Z"
+                    },
+                    {
+                        "Id": "001OC000007gzhqYAA",
+                        "PersonHomePhone": "306-286-9222",
+                        "SSOT_HomePhone_ID__pc": "149446",
+                        "SSOT_HomePhone_Primary__pc": false,
+                        "SSOT_HomePhone_Date_Time__pc": "2024-05-22T14:51:30.461Z"
+                    }                
+                ]
+
+                Output:
+                [
+                    {
+                        "Id": "001OC000007gzhqYAA",
+                        "PersonMobilePhone": "360-286-9222",
+                        "SSOT_MobilePhone_ID__pc": "277944",
+                        "SSOT_MobilePhone_Primary__pc": true,
+                        "SSOT_MobilePhone_Date_Time__pc": "2024-05-22T14:51:30.461Z",
+                        "PersonHomePhone": "306-286-9222",
+                        "SSOT_HomePhone_ID__pc": "149446",
+                        "SSOT_HomePhone_Primary__pc": false,
+                        "SSOT_HomePhone_Date_Time__pc": "2024-05-22T14:51:30.461Z",
+                        "PersonOtherPhone": "",
+                        "SSOT_BusinessPhone_ID__pc": "",
+                        "SSOT_BusinessPhone_Primary__pc": false,
+                        "SSOT_BusinessPhone_Date_Time__pc": "",
+                        "Fax": "",
+                        "SSOT_FaxPhone_ID__pc": "",
+                        "SSOT_FaxPhone_Primary__pc": false,
+                        "SSOT_FaxPhone_Date_Time__pc": ""
+                    }          
+                ]
+                -->
+
+                <ee:transform doc:name="Update account with phones" >
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                        output application/java
+
+                        //Combine records with same Id
+                        var agg = payload groupBy $.Id mapObject ((value, key, index) -> 
+                            (key) : (({(value map $)} distinctBy ((value, key) -> key )) )
+                        )
+                        ---
+                        ( keysOf(agg) map(agg[$]) ) map (item, index) -> {
+
+                            Id:item.Id,
+
+                            // Celluar phone
+                            PersonMobilePhone:              if (!isEmpty(item.PersonMobilePhone))
+                                                                item.PersonMobilePhone else '',
+                            SSOT_MobilePhone_ID__pc:        if (!isEmpty(item.SSOT_MobilePhone_ID__pc))
+                                                                item.SSOT_MobilePhone_ID__pc else '',
+                            SSOT_MobilePhone_Primary__pc:   if (!isEmpty(item.SSOT_MobilePhone_Primary__pc)) 
+                                                                item.SSOT_MobilePhone_Primary__pc else false,
+                            SSOT_MobilePhone_Date_Time__pc: if (!isEmpty(item.SSOT_MobilePhone_Date_Time__pc)) 
+                                                                item.SSOT_MobilePhone_Date_Time__pc else '',
+
+                            // Home phone
+                            PersonHomePhone:             if (!isEmpty(item.PersonHomePhone))
+                                                            item.PersonHomePhone else '',
+                            SSOT_HomePhone_ID__pc:       if (!isEmpty(item.SSOT_HomePhone_ID__pc)) 
+                                                            item.SSOT_HomePhone_ID__pc else '',
+                            SSOT_HomePhone_Primary__pc:  if (!isEmpty(item.SSOT_HomePhone_Primary__pc))
+                                                            item.SSOT_HomePhone_Primary__pc else false,
+                            SSOT_HomePhone_Date_Time__pc:if (!isEmpty(item.SSOT_HomePhone_Date_Time__pc)) 
+                                                            item.SSOT_HomePhone_Date_Time__pc else '',
+
+                            // Business phone
+                            PersonOtherPhone:                if (!isEmpty(item.PersonOtherPhone))
+                                                                item.PersonOtherPhone else '',
+                            SSOT_BusinessPhone_ID__pc:       if (!isEmpty(item.SSOT_BusinessPhone_ID__pc))
+                                                                item.SSOT_BusinessPhone_ID__pc else '', 
+                            SSOT_BusinessPhone_Primary__pc:  if (!isEmpty(item.SSOT_BusinessPhone_Primary__pc))
+                                                                item.SSOT_BusinessPhone_Primary__pc else false,
+                            SSOT_BusinessPhone_Date_Time__pc:if (!isEmpty(item.SSOT_BusinessPhone_Date_Time__pc))
+                                                                item.SSOT_BusinessPhone_Date_Time__pc else '',
+
+                            // Fax phone
+                            Fax:                         if (!isEmpty(item.Fax)) 
+                                                            item.Fax else '',
+                            SSOT_FaxPhone_ID__pc:        if (!isEmpty(item.SSOT_FaxPhone_ID__pc)) 
+                                                            item.SSOT_FaxPhone_ID__pc else '',
+                            SSOT_FaxPhone_Primary__pc:   if (!isEmpty(item.SSOT_FaxPhone_Primary__pc)) 
+                                                            item.SSOT_FaxPhone_Primary__pc else false,
+                            SSOT_FaxPhone_Date_Time__pc: if (!isEmpty(item.SSOT_FaxPhone_Date_Time__pc))
+                                                            item.SSOT_FaxPhone_Date_Time__pc else ''
+                        }
+                        ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+                
+                <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
+                <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+
+                <flow-ref doc:name="run job" name="job-bulk"/>
+            
+            </when>
+        </choice>
+        
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		
     </flow>

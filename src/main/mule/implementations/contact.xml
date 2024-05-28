@@ -20,6 +20,7 @@
         
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
+        <!-- Look for all contactId keys to determine if the which input records will be create or update-->
         <flow-ref doc:name="get contact ids" name="query-contact"/>
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 

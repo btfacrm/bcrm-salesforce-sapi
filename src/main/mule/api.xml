@@ -57,7 +57,7 @@
 
     <flow name="post:\accountudf:application\json:api-config">
         <flow-ref doc:name="accountudf" name="endpoint-accountudf"/>
-  </flow>
+    </flow>
 
     <flow name="post:\disbursement:application\json:api-config">
 		  <flow-ref doc:name="disbursment" name="endpoint-disbursement"/>
@@ -69,14 +69,14 @@
 
     <flow name="post:\agencyregion:application\json:api-config">
         <flow-ref doc:name="agencyregion" name="endpoint-agencyregion"/>
-  </flow>
+    </flow>
 
     <flow name="post:\phone:application\json:api-config">
 		  <flow-ref doc:name="phone" name="endpoint-phone"/>
     </flow>
 
     <flow name="post:\address:application\json:api-config">
-		  <flow-ref doc:name="address" name="address-endpoint"/>
+		  <flow-ref doc:name="address" name="endpoint-address"/>
     </flow>
 
     <flow name="post:\email:application\json:api-config">

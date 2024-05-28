@@ -16,60 +16,68 @@
 		http://www.mulesoft.org/schema/mule/batch 
 		http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
-    <flow name="address-endpoint">     
+    <flow name="endpoint-address">     
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
+        <!-- Look for all contactId keys -->
         <flow-ref doc:name="query contact" name="query-contact"/>
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - vars.listIds]" /> -->
 
-        <!-- Notes:
-            - Update account with primary address
-            - The list of records to update in Account Object can be less than the input records,
-              because not all the records are primary. Other endpoints like balance, both list must
-              have the same size, otherwise is an error.
-        -->
+        <flow-ref doc:name="analyze input records" name="analyze-input-records-contact"/>
 
-        <ee:transform doc:name="Update account with primary address">
-            <ee:message >
-                <ee:set-payload ><![CDATA[%dw 2.0
-                output application/java
-                import * from dw::core::Strings
-                ---
-                vars.originalPayload filter ( $.primary == true )
-                    map (address) -> {
-                        'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
-                        'PersonMailingStreet':     trim( (address.address1 default '') ++ ' ' ++
-                                                    (address.address2 default '') ++ ' ' ++
-                                                    (address.address3 default '') ) withMaxSize  150,
-                        'PersonMailingCity':       if (!isEmpty(address.city)) address.city else "#N/A",
-                        'PersonMailingPostalCode': if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
-                        'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A",
-                        'PersonMailingStateCode':  if ( isEmpty(address.state) ) 
-                                                        "#N/A"
-                                                   else
-                                                        if (!isEmpty(address.country)
-                                                            and (["US","CA","MX"] contains address.country) )
-                                                            if ( (address.state  contains('-')) or (address.state contains('_')))
+		<choice doc:name="found all keys in Salesforce?" >
+            <when expression='#[vars.missingIds.totalMissing == 0]'>
+                <!-- Notes:
+                    - Update account with primary address
+                    - The list of records to update in Account Object can be less than the input records,
+                    because only the primary are updated.
+                -->
+
+                <ee:transform doc:name="Update account with primary address">
+                    <ee:message >
+                        <ee:set-payload ><![CDATA[%dw 2.0
+                        output application/java
+                        import * from dw::core::Strings
+                        ---
+                        vars.originalPayload filter ( $.primary == true )
+                            map (address) -> {
+                                'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
+                                'PersonMailingStreet':     trim( (address.address1 default '') ++ ' ' ++
+                                                            (address.address2 default '') ++ ' ' ++
+                                                            (address.address3 default '') ) withMaxSize  150,
+                                'PersonMailingCity':       if (!isEmpty(address.city)) address.city else "#N/A",
+                                'PersonMailingPostalCode': if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
+                                'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A",
+                                'PersonMailingStateCode':  if ( isEmpty(address.state) ) 
                                                                 "#N/A"
-                                                            else 
-                                                                address.state
                                                         else
-                                                            "#N/A"
+                                                                if (!isEmpty(address.country)
+                                                                    and (["US","CA","MX"] contains address.country) )
+                                                                    if ( (address.state  contains('-')) or (address.state contains('_')))
+                                                                        "#N/A"
+                                                                    else 
+                                                                        address.state
+                                                                else
+                                                                    "#N/A"
 
-                    }
-                ]]>
-                </ee:set-payload>
-            </ee:message>
-        </ee:transform>
+                            }
+                        ]]>
+                        </ee:set-payload>
+                    </ee:message>
+                </ee:transform>
 
-        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+                <set-variable doc:name="temporal original payload" variableName="temporalPayload" value="#[vars.originalPayload]" />
+                <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
+                <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
 
-        <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
-        <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
+                <flow-ref doc:name="run job" name="job-bulk"/>
 
-        <flow-ref doc:name="run job" name="job-bulk"/>
+        		<set-variable doc:name="restore original payload for next flow" variableName="originalPayload" value="#[vars.temporalPayload]" />
+		        <remove-variable doc:name="remove temporal payload" variableName="temporalPayload"/>
 
-        <flow-ref doc:name="add records in address_c" name="address-list"/>
+                <flow-ref doc:name="add records in address_c" name="address-list"/>
+            </when>
+        </choice>
 
         <flow-ref doc:name="service response" name="service-response"/>
         <error-handler ref="global-error-handler" />		
