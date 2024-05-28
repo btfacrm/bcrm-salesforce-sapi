@@ -68,10 +68,10 @@
                         output application/java
                         ---
                         vars.originalPayload map (email) -> {
-                            'Id':                           (vars.listIds filter ( $.contactId == email.contactId )).id[0],
-                            'TempEmail__pc':                email.email,
-                            'SSOT_PersonEmailID__pc':       email.emailId,
-                            'SSOT_PersonEmail_Date_Time__pc':email.date as DateTime
+                            Id:                            (vars.listIds filter ( $.contactId == email.contactId )).id[0],
+                            SSOT_PersonEmail__pc:          email.email,
+                            SSOT_PersonEmailID__pc:        email.emailId,
+                            SSOT_PersonEmail_Date_Time__pc:email.date as DateTime
                         }
                         ]]>
                         </ee:set-payload>
