@@ -21,6 +21,8 @@
 			<salesforce:parameters ><![CDATA[#[output application/java --- { queryFilter : vars.queryFilter}]]]></salesforce:parameters>
 		</salesforce:query>
  
+ 		 <!-- <logger doc:name="result" level="DEBUG" category="app" message="#[ payload ]" /> -->
+
 		<ee:dynamic-evaluate doc:name="evaluate" expression="#[vars.buildResponse]" target="listIds"/>
 		<!-- <logger doc:name="result" level="DEBUG" category="app" message="#['listIds size: ' ++ (sizeOf(vars.listIds) as String default '') ]" /> -->
 		<error-handler ref="global-error-handler" />

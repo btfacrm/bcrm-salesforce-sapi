@@ -28,7 +28,7 @@
                     output application/java
                     ---
                     vars.originalPayload map (address) -> {
-                        'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
+                        'Id' : (vars.listIds filter ( $.addressId == address.addressId )).id[0],
                         'Beneficiary__r.SSOT_Contact_ID__c': address.contactId,
                         'Name':             address.addressId ++ "-" ++ address.contactId,
                         'SSOT_ID__c':       address.addressId,
@@ -53,6 +53,9 @@
                 </ee:set-variable>	
             </ee:variables>
         </ee:transform>	
+
+        <!--<logger level="DEBUG" category="app" message="#[output application/json - vars.payloadWithIds]" /> -->
+
 
         <!-- 
             Discover the records to create in Address__c
