@@ -25,8 +25,8 @@
                 output application/java
                 ---
                 vars.originalPayload map (item, index) -> {
-                    'Trust_Account__r.IIM_Account_Number__c': item.account,
                     'Transaction_Number__c':    item.transaction,
+                    'Trust_Account__r.IIM_Account_Number__c': item.account,
                     'Name':                     item.transaction,
                     'Code__c':                  item.code,
                     'Disbursement_Text__c':     item.disbursementText,
@@ -46,7 +46,7 @@
         </ee:transform>
 
         <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account_Disbursement__c" />
-        <set-variable doc:name="set operation" variableName="bulkOperation" value="insert" />
+        <set-variable doc:name="set operation" variableName="bulkOperation" value="upsert" />
 
         <flow-ref doc:name="run job" name="job-bulk"/>
         <flow-ref doc:name="service response" name="service-response"/>

@@ -11,12 +11,12 @@
 
 	<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
 	<artifactId>bcrm-salesforce-sapi-asset</artifactId>
-	<version>1.0.83</version> 
+	<version>1.0.84</version> 
 	<packaging>mule-application</packaging>
 
 	<name>bcrm-salesforce-sapi</name>
 	<description>BCRM Salesforce System API</description>
-
+ 
 	<properties>
 		<!-- Exchange documentation. Details on https://docs.mulesoft.com/exchange/to-publish-assets-maven#publish-an-asset-with-mutable-data -->
 		<categories key="API layer">System</categories>
