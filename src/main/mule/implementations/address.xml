@@ -69,7 +69,7 @@
                 <set-variable doc:name="temporal original payload" variableName="temporalPayload" value="#[vars.originalPayload]" />
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="operation" variableName="bulkOperation" value="update" />
-
+                <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
         		<set-variable doc:name="restore original payload for next flow" variableName="originalPayload" value="#[vars.temporalPayload]" />

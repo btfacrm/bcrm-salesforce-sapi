@@ -46,9 +46,9 @@
                     </ee:message>
                 </ee:transform>
                 
-                <set-variable variableName="salesforceObject" value="Trust_Account__c" doc:name="Salesforce object" />
-                <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
-        
+                <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
+                <set-variable doc:name="Salesforce object" variableName="bulkOperation" value="update" />
+                <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
             </when>
             <otherwise>

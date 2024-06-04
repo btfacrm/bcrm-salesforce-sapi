@@ -54,7 +54,9 @@
 			config-ref="GlobalSalesforceConfig" 
 			objectType="#[vars.salesforceObject]" 
 			operation="#[vars.bulkOperation]" 
-			externalIdFieldName="Id" readTimeout="60" readTimeoutUnit="SECONDS">
+			externalIdFieldName="#[vars.externalIdField]"
+			readTimeout="60"
+			readTimeoutUnit="SECONDS">
 			<reconnect count="5"/>
 		</salesforce:create-job-bulk-api-v2>
 		<set-variable doc:name="save jobId" variableName="jobId" value="#[payload.id]"/>

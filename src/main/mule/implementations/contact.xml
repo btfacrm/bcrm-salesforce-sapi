@@ -98,8 +98,9 @@
 
                 <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
-                <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
-                <set-variable doc:name="operation" variableName="bulkOperation" value="insert"/>
+                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Account" />
+                <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/>
+                <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
             </when>
@@ -131,6 +132,7 @@
 
                 <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Account" />
                 <set-variable doc:name="set operation" variableName="bulkOperation" value="update"/>
+                <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
             </when>

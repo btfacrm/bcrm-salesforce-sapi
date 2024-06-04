@@ -210,8 +210,9 @@
                     </ee:message>
                 </ee:transform>
                 
-                <set-variable variableName="salesforceObject" value="Account" doc:name="Salesforce object" />
-                <set-variable variableName="bulkOperation" value="update" doc:name="Salesforce object" />
+                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Account" />
+                <set-variable doc:name="set operation" variableName="bulkOperation" value="update" />
+                <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/>
 
                 <flow-ref doc:name="run job" name="job-bulk"/>
             
