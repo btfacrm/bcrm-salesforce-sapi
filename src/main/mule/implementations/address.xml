@@ -42,29 +42,34 @@
                         vars.originalPayload filter ( $.primary == true )
                             map (address) -> {
                                 'Id' : (vars.listIds filter ( $.contactId == address.contactId )).id[0],
-                                'PersonMailingStreet':     trim( (address.address1 default '') ++ ' ' ++
-                                                            (address.address2 default '') ++ ' ' ++
-                                                            (address.address3 default '') ) withMaxSize  150,
-                                'PersonMailingCity':       if (!isEmpty(address.city)) address.city else "#N/A",
-                                'PersonMailingPostalCode': if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
-                                'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A",
-                                'PersonMailingStateCode':  if ( isEmpty(address.state) ) 
-                                                                "#N/A"
-                                                        else
-                                                                if (!isEmpty(address.country)
-                                                                    and (["US","CA","MX"] contains address.country) )
-                                                                    if ( (address.state  contains('-')) or (address.state contains('_')))
-                                                                        "#N/A"
-                                                                    else 
-                                                                        address.state
-                                                                else
-                                                                    "#N/A"
-
+                                'PersonMailingStreet':               trim( (address.address1 default '') ++ ' ' ++
+                                                                     (address.address2 default '') ++ ' ' ++
+                                                                     (address.address3 default '') ) withMaxSize  150,
+                                'PersonMailingCity':                 if (!isEmpty(address.city)) address.city else "#N/A",
+                                'PersonMailingPostalCode':           if (!isEmpty(address.zipCode)) address.zipCode else "#N/A",
+                                'SSOT_PersonMailingCountryCode__pc': if (!isEmpty(address.country)) address.country else "#N/A",
+                                'SSOT_PersonMailingStateCode__pc':   if (!isEmpty(address.state)) address.state 
                             }
                         ]]>
                         </ee:set-payload>
                     </ee:message>
                 </ee:transform>
+                <!--
+                    The next code was before the introduction of the salesforce script to update state and country:
+
+                    'PersonMailingCountryCode':if (!isEmpty(address.country)) address.country else "#N/A",
+                    'PersonMailingStateCode':  if ( isEmpty(address.state) ) 
+                                                    "#N/A"
+                                            else
+                                                    if (!isEmpty(address.country)
+                                                        and (["US","CA","MX"] contains address.country) )
+                                                        if ( (address.state  contains('-')) or (address.state contains('_')))
+                                                            "#N/A"
+                                                        else 
+                                                            address.state
+                                                    else
+                                                        "#N/A"
+                -->
 
                 <set-variable doc:name="temporal original payload" variableName="temporalPayload" value="#[vars.originalPayload]" />
                 <set-variable doc:name="Salesforce object" variableName="salesforceObject" value="Account" />
