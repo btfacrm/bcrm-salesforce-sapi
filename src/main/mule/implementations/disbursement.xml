@@ -23,6 +23,13 @@
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/java
+                var newEffectiveDate = (payload[0].date >> "Etc/GMT-6") as String
+                var positionPlusSignEfDate = (newEffectiveDate find "+")[0]
+                var newEffectiveDateUTC = newEffectiveDate[0 to positionPlusSignEfDate - 1] ++ "Z"
+                var newSettleDate = (payload[0].settleDate >> "Etc/GMT-6") as String
+                var positionPlusSignSeDate = (newSettleDate find "+")[0]
+                var newSettleDateUTC = newSettleDate[0 to positionPlusSignSeDate - 1] ++ "Z"
+
                 ---
                 vars.originalPayload map (item, index) -> {
                     'Transaction_Number__c':    item.transaction,
@@ -33,17 +40,19 @@
                     'Amount__c':                item.amount,
                     'Debit_Credit_Indicator__c':item.debitCreditIndicator,
                     'Status__c':                item.status,
-                    'Settle_Date__c':           (item.settleDate as DateTime) >> "US/Mountain",
+                    'Settle_Date__c':           newSettleDateUTC,
                     'Settle_Flag__c':           item.settleFlag,
                     'Income_Indicator__c':      item.incomeIndicator,
                     'Tax_Code__c':              item.taxCode,
                     'Tax_Year__c':              item.taxYear,
-                    'Transaction_Date_Time__c': (item.date as DateTime)  >> "US/Mountain"
+                    'Transaction_Date_Time__c': newEffectiveDateUTC
                 }
                 ]]>
                 </ee:set-payload>
             </ee:message>
         </ee:transform>
+
+        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
         <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account_Disbursement__c" />
         <set-variable doc:name="set operation" variableName="bulkOperation" value="upsert" />
