@@ -22,10 +22,52 @@
         <ee:transform doc:name="build Salesforce payload for transactions" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
-                output application/java
+                import * from dw::core::Dates
 
-                fun utc(mountainDate: DateTime) = mountainDate >> "Etc/GMT-6" as String
-                fun toUTC(mountainDate: DateTime) = utc(mountainDate)[0 to sizeOf(utc(mountainDate))-7 ] ++ "Z"
+                fun utcdts(mountainDate: DateTime) = 
+                    mountainDate >> "Etc/GMT-6" as String
+                fun utc(mountainDate: DateTime) = 
+                    mountainDate >> "Etc/GMT-7" as String
+
+                fun toUTCfromDST(mountainDate: DateTime) = 
+                    utcdts(mountainDate)[0 to sizeOf(utcdts(mountainDate))-7 ] ++ "Z"
+                fun toUTC(mountainDate: DateTime) = 
+                    utc(mountainDate)[0 to sizeOf(utc(mountainDate))-7 ] ++ "Z"
+                    
+                fun getDate(year: Number, month: Number, day: Number) =
+                    date({year:year, month: month, day: day})
+
+                fun getSundayOfMonth(dm: Date, number: Number)=  
+                    ((1 to 14 map (day) -> 
+                        'day':  if ( getDate(dm.year, dm.month, day).dayOfWeek == 7 ) day
+                                else 0
+                    ) filter (value, index) -> (value.day != 0))[number - 1].day
+
+                fun dstStart(original: DateTime) = 
+                    dateTime({
+                        year: original.year, 
+                        month: 3,
+                        day: getSundayOfMonth( getDate(original.year, 3, 1), 2 ), 
+                        hour: 2,
+                        minutes: 0,
+                        seconds: 0,
+                        timeZone: |+00:00|
+                    }) 
+
+                fun dstEnd(original: DateTime) = 
+                    dateTime({
+                        year: original.year, 
+                        month: 11,
+                        day: getSundayOfMonth( getDate(original.year, 11, 1), 1 ), 
+                        hour: 2,
+                        minutes: 0,
+                        seconds: 0,
+                        timeZone: |+00:00|
+                    }) 
+
+                fun dstAdjust(date: DateTime) =
+                    if (date >= dstStart(date) and date < dstEnd(date))
+                        toUTCfromDST(date) else toUTC(date)
 
                 ---
                 vars.originalPayload map (item, index) -> {
@@ -42,7 +84,7 @@
                     'Income_Indicator__c':      item.incomeIndicator,
                     'Tax_Code__c':              item.taxCode,
                     'Tax_Year__c':              item.taxYear,
-                    'Transaction_Date_Time__c': toUTC(item.date)
+                    'Transaction_Date_Time__c': dstAdjust(item.date)
                 }
                 ]]>
                 </ee:set-payload>
