@@ -20,21 +20,19 @@
 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- Look for all contactId keys -->
-        <flow-ref doc:name="query contact" name="query-contact"/>
-
-        <flow-ref doc:name="analyze input records" name="analyze-input-records-contact"/>
+         <!-- Look for all contactId keys to determine if the which input records will be create or update-->
+        <flow-ref doc:name="get contact ids" name="query-contact"/>
           
         <ee:transform doc:name="build Salesforce payload for payment method object" >
             <ee:variables >
-            
+            	<!-- 'Beneficiary__r.Contact__c': 		item.contactId, -->
                 <ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
                     output application/java
                     ---
                     vars.originalPayload map (item, index) -> {
                         ID: 			  		item.ID,
 								
-                        'Beneficiary__r.Contact__c': 		item.contactId,
+                        
                         'DefaultFlag__c':                  	item.DefaultFlag,
                         'Payment_Type__c':   		 		item.PaymentType,
                         'Receiving_Bank_Name__c': 			item.ReceivingBankName,
