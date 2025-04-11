@@ -41,7 +41,7 @@
                         'Receiving_Bank_Name__c': 			item.ReceivingBankName,
                         'ABANumberCode__c': 	    		item.ABANumbercode,
                         'Credit_Account_Name__c': 		    item.CreditAcctName,
-                        'Credit_Account_Number__c': 		item.CreditAccNumber,
+                        'Credit_Account_Number__c': 		item.CreditAcctNumber,
                         'Debit_Card_Flag__c': 			    item.DebitCardFlag,
                         'Combine_Check_Flag__c Contact__c':	item.CombineCheckFlag,
                         'ValidFrom__c': 			        item.date,
