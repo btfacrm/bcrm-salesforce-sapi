@@ -20,15 +20,14 @@
 
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
-        <!-- Look for all IIM_Account_Number__c keys to determine if the which input records will be create or update-->
-        <flow-ref doc:name="query payment" name="query-payment"/>
+        <!-- Look for all contactId keys -->
+        <flow-ref doc:name="query contact" name="query-contact"/>
 
-        <!--  <set-variable doc:name="save account ids" variableName="listAccountIds" value="#[vars.listIds]"/>-->
+        <flow-ref doc:name="analyze input records" name="analyze-input-records-contact"/>
           
         <ee:transform doc:name="build Salesforce payload for payment method object" >
             <ee:variables >
             
-                        <!--'Customer_Short_Name__c':	item.CustomerShortName, -->
                 <ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
                     output application/java
                     ---
