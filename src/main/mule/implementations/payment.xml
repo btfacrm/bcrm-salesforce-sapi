@@ -21,7 +21,7 @@
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
          <!-- Look for all contactId keys to determine if the which input records will be create or update-->
-        <flow-ref doc:name="get contact ids" name="query-contact"/>
+       <!--  <flow-ref doc:name="get contact ids" name="query-contact"/> -->
           
         <ee:transform doc:name="build Salesforce payload for payment method object" >
             <ee:variables >
@@ -77,18 +77,18 @@
 
                      Remove the null Id field in the records
                      ***************************************** -->
-                <ee:transform doc:name="remove null ids" >
+               <!--   <ee:transform doc:name="remove null ids" >
                     <ee:message >
                         <ee:set-payload ><![CDATA[%dw 2.0
                             output application/java
-                            ---
+                            -&#45;&#45;
                             payload map (items, index) -> (
                                 items filterObject (value, key) -> value != null
                             )
                             ]]>
                         </ee:set-payload>
                     </ee:message>
-                </ee:transform>
+                </ee:transform>-->
 
                 <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
                 <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Payment_Method__c" />
@@ -103,16 +103,16 @@
         <!-- *********************************************
             Get the records to update in Trust_Account__c
             ********************************************** -->
-        <ee:transform doc:name="get the records to update Payment_Method__c" >
+        <!--  <ee:transform doc:name="get the records to update Payment_Method__c" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/java
-                ---
+                -&#45;&#45;
                 vars.payloadWithIds filter ( $.Id != null )
                 ]]>
                 </ee:set-payload>
             </ee:message>
-        </ee:transform>
+        </ee:transform>-->
 
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
