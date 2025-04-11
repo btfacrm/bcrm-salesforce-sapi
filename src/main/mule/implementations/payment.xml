@@ -21,7 +21,7 @@
         <flow-ref doc:name="initialize batch" name="initialize-batch"/>
 
         <!-- Look for all IIM_Account_Number__c keys to determine if the which input records will be create or update-->
-        <flow-ref doc:name="query account" name="query-account"/>
+        <flow-ref doc:name="query payment" name="query-payment"/>
 
         <!--  <set-variable doc:name="save account ids" variableName="listAccountIds" value="#[vars.listIds]"/>-->
           
@@ -106,7 +106,7 @@
         <!-- *********************************************
             Get the records to update in Trust_Account__c
             ********************************************** -->
-        <ee:transform doc:name="get the records to update Trust_Account__c" >
+        <ee:transform doc:name="get the records to update Payment_Method__c" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                 output application/java
@@ -122,9 +122,9 @@
         <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
 
-                <logger level="INFO" category="app" message="#['Records to update in Trust_Account__c: ' ++ sizeOf(payload) as String]" />
+                <logger level="INFO" category="app" message="#['Records to update in Payment_Method__c: ' ++ sizeOf(payload) as String]" />
 
-                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account__c" />
+                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Payment_Method__c" />
                 <set-variable doc:name="set operation" variableName="bulkOperation" value="update"/>
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
