@@ -30,20 +30,19 @@
                     output application/java
                     ---
                     vars.originalPayload map (item, index) -> {
-                        ID: 			  		item.ID,
-								
-                        
+                        'Name': 			  				item.ID,
+                        'Contact__r.SSOT_Contact_ID__c':                  		item.contactId,
                         'DefaultFlag__c':                  	item.DefaultFlag,
                         'Payment_Type__c':   		 		item.PaymentType,
-                        'Receiving_Bank_Name__c': 		item.ReceivingBankName,
+                        'Receiving_Bank_Name__c': 			item.ReceivingBankName,
                         'ABANumberCode__c': 	    		item.ABANumbercode,
                         'Credit_Account_Name__c': 		    item.CreditAcctName,
                         'Credit_Account_Number__c': 		item.CreditAcctNumber,
-			'Account_type__c': 		item.AccountType,
-			'ACH_Advice_Method__c': 		item.ACHAdviceMethod,
+						'Account_type__c': 					item.AccountType,
+						'ACH_Advice_Method__c': 			item.ACHAdviceMethod,
                         'Debit_Card_Flag__c': 			    item.DebitCardFlag,
-                        'Combine_Check_Flag__c':	item.CombineCheckFlag,
-			'Active_Flag__c':	item.ActiveFlag,
+                        'Combine_Check_Flag__c':			item.CombineCheckFlag,
+						'Active_Flag__c':					item.ActiveFlag,
                         'ValidFrom__c': 			        item.date,
                         
                     }
