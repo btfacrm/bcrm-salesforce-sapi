@@ -43,7 +43,7 @@
                         'Debit_Card_Flag__c': 			    item.DebitCardFlag,
                         'Combine_Check_Flag__c':			item.CombineCheckFlag,
 						'Active_Flag__c':					item.ActiveFlag,
-                        'ValidFrom__c': 			        item.date,
+                        'ValidFrom__c': 			        item.date
                         
                     }
                     ]]>
