@@ -31,6 +31,7 @@
                     ---
                     vars.originalPayload map (item, index) -> {
                         'Name': 			  				item.ID,
+                        'Payment_ID__c': 			  				item.ID,
                         'Contact__r.SSOT_Contact_ID__c':                  		item.contactId,
                         'DefaultFlag__c':                  	item.DefaultFlag,
                         'Payment_Type__c':   		 		item.PaymentType,
@@ -68,11 +69,19 @@
         </ee:transform> -->
 
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+		<logger level="INFO" category="app" message="#['Records to upsert in Payment: ' ++ sizeOf(payload) as String]" />
+		<set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Payment_Method__c" />
+        <set-variable doc:name="set operation" variableName="bulkOperation" value="upsert" />
+        <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Payment_ID__c"/>
+        <flow-ref doc:name="run job" name="job-bulk"/>
 
-        <choice doc:name="Choice" >
-            <when expression='#[ sizeOf(payload) > 0 ]'>
+        <flow-ref doc:name="service response" name="service-response"/>
 
-                <logger level="INFO" category="app" message="#['Records to create in Payment: ' ++ sizeOf(payload) as String]" />
+        <error-handler ref="global-error-handler" />
+<!--         <choice doc:name="Choice" > -->
+<!--             <when expression='#[ sizeOf(payload) > 0 ]'> -->
+
+<!--                 <logger level="INFO" category="app" message="#['Records to create in Payment: ' ++ sizeOf(payload) as String]" /> -->
 
                 <!-- *****************************************
                      Create AccountPerson Object in Salesforce 
@@ -93,13 +102,13 @@
                 </ee:transform>-->
 
                 <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
-                <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Payment_Method__c" />
-                <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/>
-                <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/>
-                <flow-ref doc:name="run job" name="job-bulk"/>        
-            </when>
+<!--                 <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Payment_Method__c" /> -->
+<!--                 <set-variable doc:name="set operation" variableName="bulkOperation" value="insert"/> -->
+<!--                 <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Id"/> -->
+<!--                 <flow-ref doc:name="run job" name="job-bulk"/>         -->
+<!--             </when> -->
 
-        </choice>               
+<!--         </choice>                -->
 
 
         <!-- *********************************************
@@ -118,7 +127,7 @@
 
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 
-        <choice doc:name="Choice" >
+        <!-- <choice doc:name="Choice" >
             <when expression='#[ sizeOf(payload) > 0 ]'>
 
                 <logger level="INFO" category="app" message="#['Records to update in Payment_Method__c: ' ++ sizeOf(payload) as String]" />
@@ -128,10 +137,10 @@
                 <flow-ref doc:name="run job" name="job-bulk"/>
 
             </when>
-        </choice>
+        </choice>-->
 
-        <flow-ref doc:name="service response" name="service-response"/>
+<!--         <flow-ref doc:name="service response" name="service-response"/> -->
 
-        <error-handler ref="global-error-handler" />
+<!--         <error-handler ref="global-error-handler" /> -->
     </flow>
 </mule>
