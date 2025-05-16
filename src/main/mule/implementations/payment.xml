@@ -56,11 +56,11 @@
         <!-- ***********************************************
             Discover the records to create in TrustAccount
             *********************************************** -->
-        <!--<ee:transform doc:name="get the records to create" >
+        <!-- <ee:transform doc:name="get the records to create" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                     output application/java
-                    ---
+                    
                     vars.payloadWithIds filter (isEmpty($.Id) )
                     ]]>
                 </ee:set-payload>
