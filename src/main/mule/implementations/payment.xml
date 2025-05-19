@@ -33,7 +33,6 @@
                     vars.originalPayload map (item, index) -> {
                         'Name': 			  				item.ID,
                         'Payment_ID__c': 			  		item.ID,
-                        'Contact_ID_temp__c':    			item.contactId,
                         'DefaultFlag__c':                  	item.DefaultFlag,
                         'Payment_Type__c':   		 		item.PaymentType,
                         'Receiving_Bank_Name__c': 			item.ReceivingBankName,
