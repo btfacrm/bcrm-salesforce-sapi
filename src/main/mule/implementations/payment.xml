@@ -26,13 +26,14 @@
         <ee:transform doc:name="build Salesforce payload for payment method object" >
             <ee:variables >
             	<!-- 'Beneficiary__r.Contact__c': 		item.contactId, -->
+            	<!-- 'Contact__r.SSOT_Contact_ID__c':    item.contactId, -->
                 <ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
                     output application/java
                     ---
                     vars.originalPayload map (item, index) -> {
                         'Name': 			  				item.ID,
-                        'Payment_ID__c': 			  				item.ID,
-                        'Contact__r.SSOT_Contact_ID__c':                  		item.contactId,
+                        'Payment_ID__c': 			  		item.ID,
+                        'Contact_ID_temp__c':    			item.contactId,
                         'DefaultFlag__c':                  	item.DefaultFlag,
                         'Payment_Type__c':   		 		item.PaymentType,
                         'Receiving_Bank_Name__c': 			item.ReceivingBankName,
