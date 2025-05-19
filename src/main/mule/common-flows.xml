@@ -47,7 +47,7 @@
             </ee:message>
         </ee:transform>
 
-		<!-- <logger level="DEBUG" category="app" message="#[payload]" /> -->
+		<logger level="INFO" category="app" message="#[payload]" />
 
 		<salesforce:create-job-bulk-api-v2 
 			doc:name="job" 

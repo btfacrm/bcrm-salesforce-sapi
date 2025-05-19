@@ -33,6 +33,7 @@
                     vars.originalPayload map (item, index) -> {
                         'Name': 			  				item.ID,
                         'Payment_ID__c': 			  		item.ID,
+                        'Contact__r.SSOT_Contact_ID__c':    			item.contactId,
                         'DefaultFlag__c':                  	item.DefaultFlag,
                         'Payment_Type__c':   		 		item.PaymentType,
                         'Receiving_Bank_Name__c': 			item.ReceivingBankName,
@@ -52,7 +53,7 @@
             </ee:variables >
         </ee:transform>
 
-        <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
+        <logger level="INFO" category="app" message="#[output application/json - payload]" />
 
         <!-- ***********************************************
             Discover the records to create in TrustAccount
@@ -69,7 +70,7 @@
         </ee:transform> -->
 
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
-<!-- 		<logger level="INFO" category="app" message="#['Records to upsert in Payment: ' ++ sizeOf(payload) as String]" /> -->
+		<logger level="INFO" category="app" message="#['Records to upsert in Payment: ' ++ sizeOf(payload) as String]" />
 		<set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Payment_Method__c" />
         <set-variable doc:name="set operation" variableName="bulkOperation" value="upsert" />
         <set-variable doc:name="set externalIdField" variableName="externalIdField" value="Payment_ID__c"/>
