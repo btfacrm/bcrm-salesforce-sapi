@@ -53,7 +53,7 @@
             </ee:variables >
         </ee:transform>
 
-        <logger level="INFO" category="app" message="#[output application/json - payload]" />
+        <!-- <logger level="INFO" category="app" message="#[output application/json - payload]" /> -->
 
         <!-- ***********************************************
             Discover the records to create in TrustAccount
