@@ -58,16 +58,16 @@
         <!-- ***********************************************
             Discover the records to create in TrustAccount
             *********************************************** -->
-        <!-- <ee:transform doc:name="get the records to create" >
+        <ee:transform doc:name="get the records to create" >
             <ee:message >
                 <ee:set-payload ><![CDATA[%dw 2.0
                     output application/java
-                    
+                    ---
                     vars.payloadWithIds filter (isEmpty($.Id) )
                     ]]>
                 </ee:set-payload>
             </ee:message>
-        </ee:transform> -->
+        </ee:transform>
 
         <!-- <logger level="DEBUG" category="app" message="#[output application/json - payload]" /> -->
 		<logger level="INFO" category="app" message="#['Records to upsert in Payment: ' ++ sizeOf(payload) as String]" />
