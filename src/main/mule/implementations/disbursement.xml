@@ -79,12 +79,12 @@
                     'Amount__c':                item.amount,
                     'Debit_Credit_Indicator__c':item.debitCreditIndicator,
                     'Status__c':                item.status,
-                    'Settle_Date__c':           toUTC(item.settleDate),
+                    'Settle_Date__c':           toUTC(item.settleDate as DateTime),
                     'Settle_Flag__c':           item.settleFlag,
                     'Income_Indicator__c':      item.incomeIndicator,
                     'Tax_Code__c':              item.taxCode,
                     'Tax_Year__c':              item.taxYear,
-                    'Transaction_Date_Time__c': dstAdjust(item.date)
+                    'Transaction_Date_Time__c': dstAdjust(item.date as DateTime)
                 }
                 ]]>
                 </ee:set-payload>
