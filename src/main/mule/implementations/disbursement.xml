@@ -91,7 +91,7 @@
             </ee:message>
         </ee:transform>
 
-        <logger level="INFO" category="app" message="#[output application/json - payload]" />
+        <!--<logger level="INFO" category="app" message="#[output application/json - payload]" />-->
 
         <set-variable doc:name="set Salesforce object" variableName="salesforceObject" value="Trust_Account_Disbursement__c" />
         <set-variable doc:name="set operation" variableName="bulkOperation" value="upsert" />
