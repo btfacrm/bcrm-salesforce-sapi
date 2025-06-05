@@ -82,12 +82,12 @@
                     'Amount__c':                item.amount,
                     'Debit_Credit_Indicator__c':item.debitCreditIndicator,
                     'Status__c':                item.status,
-                    'Settle_Date__c':           item.settleDate,
+                    'Settle_Date__c':           (item.settleDate as DateTime {format: "yyyy-MM-dd HH:mm:ss.SSS", timeZone: "MST7MDT"}) as String {format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timeZone: "UTC"},
                     'Settle_Flag__c':           item.settleFlag,
                     'Income_Indicator__c':      item.incomeIndicator,
                     'Tax_Code__c':              item.taxCode,
                     'Tax_Year__c':              item.taxYear,
-                    'Transaction_Date_Time__c': item.date
+                    'Transaction_Date_Time__c': 	(item.date as DateTime {format: "yyyy-MM-dd HH:mm:ss.SSS", timeZone: "MST7MDT"}) as String {format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timeZone: "UTC"}
                 }
                 ]]>
                 </ee:set-payload>
