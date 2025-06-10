@@ -74,6 +74,10 @@
     <flow name="post:\phone:application\json:api-config">
 		  <flow-ref doc:name="phone" name="endpoint-phone"/>
     </flow>
+    
+    <flow name="post:\payment:application\json:api-config">
+		  <flow-ref doc:name="payment" name="endpoint-payment"/>
+    </flow>
 
     <flow name="post:\address:application\json:api-config">
 		  <flow-ref doc:name="address" name="endpoint-address"/>
