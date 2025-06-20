@@ -11,7 +11,7 @@
     <!-- Code can be rolled back to remove payment 1.0.99 full working payment code on 1.0.122-->
 	<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
 	<artifactId>bcrm-salesforce-sapi-asset</artifactId>
-	<version>1.0.138</version> 
+	<version>1.0.139</version> 
 	<packaging>mule-application</packaging>
 
 	<name>bcrm-salesforce-sapi</name>
@@ -28,7 +28,7 @@
 		<!-- RAML specification -->
 		<restconnector.api.spec.group>${project.groupId}</restconnector.api.spec.group>
 		<restconnector.api.spec.artifact>bcrm-salesforce-sapi</restconnector.api.spec.artifact>
-		<restconnector.api.spec.version>1.0.53</restconnector.api.spec.version>
+		<restconnector.api.spec.version>1.0.54</restconnector.api.spec.version>
 
 	</properties>
 
