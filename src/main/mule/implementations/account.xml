@@ -28,7 +28,6 @@
         <ee:transform doc:name="build Salesforce payload for trust account" >
             <ee:variables >
             
-                        <!--'Customer_Short_Name__c':	item.CustomerShortName, -->
                 <ee:set-variable variableName="payloadWithIds"><![CDATA[%dw 2.0
                     output application/java
                     ---
@@ -36,6 +35,7 @@
                         'Id' : (vars.listAccountIds filter ( $.account == item.account )).id[0],
                         'Beneficiary__r.SSOT_Contact_ID__c': item.contactId,
                         'Name':                     item.account,
+						'Customer_Short_Name__c':	item.CustomerShortName,
                         'IIM_Account_Number__c':    item.account,
                         'Last_4_Digits_of_Trust_Account_Number__c': item.account[sizeOf(item.account) -4 to -1],
                         'Tier_Level_Code__c': 	    if (!isEmpty(item.tierLevelCode)) item.tierLevelCode else "#N/A",
@@ -57,7 +57,9 @@
                         'Customer_Description3__c': if (!isEmpty(item.line3)) item.line3 else "#N/A",
                         'Customer_Description4__c': if (!isEmpty(item.line4)) item.line4 else "#N/A",
                         'Statement_Date__c':        if (!isEmpty(item.statementDate)) item.statementDate else "#N/A",
-                        'Account_Date_Time__c': 	item.date
+						'PreviousAccountNumber__c':	item.PreviousAccountNumber,
+                        'PreviousAccountNumberChangeDate__c':	item.PreviousAccountNumberChangeDate,
+					    'Account_Date_Time__c': 	item.date
                     }
                     ]]>
                 </ee:set-variable>
