@@ -87,7 +87,19 @@
                     'Income_Indicator__c':      item.incomeIndicator,
                     'Tax_Code__c':              item.taxCode,
                     'Tax_Year__c':              item.taxYear,
-                    'Transaction_Date_Time__c': 	item.date
+                    'Transaction_Date_Time__c': 	item.date,
+					'DocRef_Number__c':			item.docRefNumber,
+					'Control_Log__c':			item.controlLog,
+					'ReceivingBankName__c':		item.receivingBankName,
+					'ABA_Number__c': 			item.abaNumber,
+					'CreditAcctName__c':		item.creditAcctName,
+					'CreditAcctNumber__c':		item.creditAcctNumber,
+					'DocumentNumber__c':		item.documentNumber,
+					'PaidToContactName__c':		item.paidToContactName,
+					'PaidToAddress1__c':		item.paidToAddress1,
+					'PaidToAddressCity__c':		item.paidToAddressCity,
+					'PaidToAddressState__c':	item.paidToAddressState,
+					'PaidToAddressZip__c':		item.paidToAddressZip	
                 }
                 ]]>
                 </ee:set-payload>
