@@ -57,8 +57,8 @@
                         'Customer_Description3__c': if (!isEmpty(item.line3)) item.line3 else "#N/A",
                         'Customer_Description4__c': if (!isEmpty(item.line4)) item.line4 else "#N/A",
                         'Statement_Date__c':        if (!isEmpty(item.statementDate)) item.statementDate else "#N/A",
-						'PreviousAccountNumber__c':	item.PreviousAccountNumber,
-                        'PreviousAccountNumberChangeDate__c':	item.PreviousAccountNumberChangeDate,
+						'PreviousAccountNumber__c':	if (!isEmpty(item.PreviousAccountNumber)) item.PreviousAccountNumber else "#N/A",
+                        'PreviousAccountNumberChangeDate__c':	if(!isEmpty(item.PreviousAccountNumberChangeDate)) item.PreviousAccountNumberChangeDate else "#N/A",
 					    'Account_Date_Time__c': 	item.date
                     }
                     ]]>
