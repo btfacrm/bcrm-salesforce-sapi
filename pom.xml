@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
 		<artifactId>bcrm-pom</artifactId>
-		<version>1.1.4</version>
+		<version>1.1.5</version>
 		<relativePath/>
 	</parent>
     <!-- Code can be rolled back to remove payment 1.0.99 full working payment code on 1.0.122-->
 	<groupId>176302a0-a94d-44e9-a517-9e6dc9548d0d</groupId>
 	<artifactId>bcrm-salesforce-sapi-asset</artifactId>
-	<version>1.0.142</version> 
+	<version>1.0.143</version> 
 	<packaging>mule-application</packaging>
 
 	<name>bcrm-salesforce-sapi</name>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bcrm-core</artifactId>
-			<version>1.1.1</version>
+			<version>1.1.2</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 
